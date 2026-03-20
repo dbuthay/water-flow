@@ -1,0 +1,45 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Select Flume Sensor",
+        "description": "Choose the Flume flow sensor entity to monitor water usage.",
+        "data": {
+          "flume_entity_id": "Flume sensor"
+        }
+      },
+      "valves": {
+        "title": "Select Irrigation Valves",
+        "description": "Choose which valves to monitor for irrigation flow.",
+        "data": {
+          "monitored_zone_entity_ids": "Valves to monitor"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Irrigation Monitor is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Irrigation Monitor Settings",
+        "description": "Update Flume sensor, monitored valves, and poll interval.",
+        "data": {
+          "flume_entity_id": "Flume sensor",
+          "monitored_zone_entity_ids": "Valves to monitor",
+          "poll_interval": "Poll interval (seconds)"
+        }
+      },
+      "zones": {
+        "title": "Zone Settings: {zone_name}",
+        "description": "Configure per-zone options.",
+        "data": {
+          "shutoff_enabled": "Auto-shutoff enabled",
+          "alerts_enabled": "Anomaly alerts enabled",
+          "threshold_multiplier": "Leak detection threshold multiplier"
+        }
+      }
+    }
+  }
+}

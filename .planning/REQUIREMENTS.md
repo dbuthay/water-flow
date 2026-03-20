@@ -10,10 +10,10 @@
 - [x] **SETUP-01**: User can select the Flume flow sensor entity from a list of HA entities during initial setup
 - [x] **SETUP-02**: Integration scans HA entity registry for irrigation valve entities and presents them as candidates
 - [x] **SETUP-03**: User selects which valves to monitor (not all discovered valves need to be monitored)
-- [ ] **SETUP-04**: User can re-run valve discovery via integration options to add newly available valves without losing existing zone configuration
-- [ ] **SETUP-05**: User can enable or disable auto-shutoff per monitored valve at any time (without removing the valve from monitoring)
-- [ ] **SETUP-06**: User can enable or disable anomaly alerts per monitored valve at any time (to temporarily silence a zone)
-- [ ] **SETUP-07**: User can configure the leak detection threshold multiplier per zone (e.g., 1.5 = shut off if flow exceeds 150% of calibrated baseline)
+- [x] **SETUP-04**: User can re-run valve discovery via integration options to add newly available valves without losing existing zone configuration
+- [x] **SETUP-05**: User can enable or disable auto-shutoff per monitored valve at any time (without removing the valve from monitoring)
+- [x] **SETUP-06**: User can enable or disable anomaly alerts per monitored valve at any time (to temporarily silence a zone)
+- [x] **SETUP-07**: User can configure the leak detection threshold multiplier per zone (e.g., 1.5 = shut off if flow exceeds 150% of calibrated baseline)
 
 ### Calibration (CALIB)
 
@@ -85,10 +85,10 @@ Updated during roadmap creation.
 | SETUP-01 | Phase 2 | Complete |
 | SETUP-02 | Phase 2 | Complete |
 | SETUP-03 | Phase 2 | Complete |
-| SETUP-04 | Phase 2 | Pending |
-| SETUP-05 | Phase 2 | Pending |
-| SETUP-06 | Phase 2 | Pending |
-| SETUP-07 | Phase 2 | Pending |
+| SETUP-04 | Phase 2 | Complete |
+| SETUP-05 | Phase 2 | Complete |
+| SETUP-06 | Phase 2 | Complete |
+| SETUP-07 | Phase 2 | Complete |
 | CALIB-01 | Phase 4 | Pending |
 | CALIB-02 | Phase 4 | Pending |
 | CALIB-03 | Phase 4 | Pending |

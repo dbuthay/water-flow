@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 02-config-flow/02-01-PLAN.md
-last_updated: "2026-03-20T07:36:08.001Z"
+stopped_at: Completed 02-config-flow/02-02-PLAN.md
+last_updated: "2026-03-20T07:46:28Z"
 last_activity: 2026-03-19 — Roadmap created; 26/26 v1 requirements mapped across 6 phases
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 3
-  completed_plans: 2
+  completed_plans: 3
   percent: 0
 ---
 
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** When a valve is running and water flow spikes beyond the expected rate, the system shuts it off automatically — protecting against burst pipes and unexpected leaks.
-**Current focus:** Phase 1 — Scaffold
+**Current focus:** Phase 2 — Config Flow
 
 ## Current Position
 
-Phase: 1 of 6 (Scaffold)
-Plan: 0 of ? in current phase
-Status: Ready to plan
-Last activity: 2026-03-19 — Roadmap created; 26/26 v1 requirements mapped across 6 phases
+Phase: 2 of 6 (Config Flow)
+Plan: 2 of 2 in current phase
+Status: Phase complete — ready for Phase 3
+Last activity: 2026-03-20 — Completed Phase 2 Plan 02: Full options flow with CRITICAL merge pattern
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -52,6 +52,7 @@ Progress: [░░░░░░░░░░] 0%
 *Updated after each plan completion*
 | Phase 01-scaffold P01 | 5 | 2 tasks | 10 files |
 | Phase 02-config-flow P02-01 | 12 | 2 tasks | 7 files |
+| Phase 02-config-flow P02-02 | 6 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -70,6 +71,9 @@ Recent decisions affecting current work:
 - [Phase 02-config-flow]: EntitySelector with integration=flume filter for Step 1; SelectSelector for Step 2 to support Friendly Name display format
 - [Phase 02-config-flow]: options.zones initialized at config flow CREATE_ENTRY time with all per-zone defaults including calibrated_flow=None
 - [Phase 02-config-flow]: IrrigationMonitorOptionsFlowHandler stub (returns existing options unchanged) — Plan 02-02 implements full options flow
+- [Phase 02-config-flow 02-02]: New zones initialized with full defaults dict (incl. calibrated_flow=None) before merging user input — prevents KeyError in Phase 4 calibration reads
+- [Phase 02-config-flow 02-02]: Zone iterator pattern (_zone_iterator popped per step) drives per-zone forms; final merge executes when iterator is empty
+- [Phase 02-config-flow 02-02]: ConfigEntry.data updated via async_update_entry before async_create_entry to keep data and options in sync for Phase 3 coordinator
 
 ### Pending Todos
 
@@ -83,6 +87,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-20T07:36:07.999Z
-Stopped at: Completed 02-config-flow/02-01-PLAN.md
+Last session: 2026-03-20T07:46:28Z
+Stopped at: Completed 02-config-flow/02-02-PLAN.md
 Resume file: None

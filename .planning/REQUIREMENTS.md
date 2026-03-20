@@ -7,9 +7,9 @@
 
 ### Setup & Discovery (SETUP)
 
-- [ ] **SETUP-01**: User can select the Flume flow sensor entity from a list of HA entities during initial setup
-- [ ] **SETUP-02**: Integration scans HA entity registry for irrigation valve entities and presents them as candidates
-- [ ] **SETUP-03**: User selects which valves to monitor (not all discovered valves need to be monitored)
+- [x] **SETUP-01**: User can select the Flume flow sensor entity from a list of HA entities during initial setup
+- [x] **SETUP-02**: Integration scans HA entity registry for irrigation valve entities and presents them as candidates
+- [x] **SETUP-03**: User selects which valves to monitor (not all discovered valves need to be monitored)
 - [ ] **SETUP-04**: User can re-run valve discovery via integration options to add newly available valves without losing existing zone configuration
 - [ ] **SETUP-05**: User can enable or disable auto-shutoff per monitored valve at any time (without removing the valve from monitoring)
 - [ ] **SETUP-06**: User can enable or disable anomaly alerts per monitored valve at any time (to temporarily silence a zone)
@@ -82,9 +82,9 @@ Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SETUP-01 | Phase 2 | Pending |
-| SETUP-02 | Phase 2 | Pending |
-| SETUP-03 | Phase 2 | Pending |
+| SETUP-01 | Phase 2 | Complete |
+| SETUP-02 | Phase 2 | Complete |
+| SETUP-03 | Phase 2 | Complete |
 | SETUP-04 | Phase 2 | Pending |
 | SETUP-05 | Phase 2 | Pending |
 | SETUP-06 | Phase 2 | Pending |

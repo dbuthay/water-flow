@@ -43,7 +43,7 @@ Plans:
   3. User can toggle auto-shutoff on or off for a specific zone from the options UI without removing that zone from monitoring
   4. User can toggle anomaly alerts on or off for a specific zone from the options UI independently of the auto-shutoff toggle
   5. User can set a custom leak detection threshold multiplier per zone (e.g., 1.5x) from the options UI
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 Plans:
 - [ ] 02-01-PLAN.md — Config flow two-step wizard (Flume sensor + valve selection) with test infrastructure
 - [ ] 02-02-PLAN.md — Options flow for valve management and per-zone settings
@@ -100,7 +100,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Scaffold | 1/1 | Complete    | 2026-03-20 |
-| 2. Config Flow | 0/2 | Planning complete | - |
+| 2. Config Flow | 1/2 | In Progress|  |
 | 3. Coordinator + Usage | 0/? | Not started | - |
 | 4. Calibration | 0/? | Not started | - |
 | 5. Leak Detection | 0/? | Not started | - |

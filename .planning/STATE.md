@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Phase 2 context gathered
-last_updated: "2026-03-20T06:51:12.667Z"
+stopped_at: Completed 02-config-flow/02-01-PLAN.md
+last_updated: "2026-03-20T07:36:08.001Z"
 last_activity: 2026-03-19 — Roadmap created; 26/26 v1 requirements mapped across 6 phases
 progress:
   total_phases: 6
   completed_phases: 1
-  total_plans: 1
-  completed_plans: 1
+  total_plans: 3
+  completed_plans: 2
   percent: 0
 ---
 
@@ -51,6 +51,7 @@ Progress: [░░░░░░░░░░] 0%
 
 *Updated after each plan completion*
 | Phase 01-scaffold P01 | 5 | 2 tasks | 10 files |
+| Phase 02-config-flow P02-01 | 12 | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -66,6 +67,9 @@ Recent decisions affecting current work:
 - [Phase 01-scaffold]: Used Python 3.13 + pytest-homeassistant-custom-component==0.13.316 (plan specified 0.13.318 requiring Python 3.14 not yet installed)
 - [Phase 01-scaffold]: config_flow=false in manifest.json until Phase 2 adds config_flow.py
 - [Phase 01-scaffold]: No custom_components/__init__.py - HA loader expects custom_components/ to NOT be a Python package
+- [Phase 02-config-flow]: EntitySelector with integration=flume filter for Step 1; SelectSelector for Step 2 to support Friendly Name display format
+- [Phase 02-config-flow]: options.zones initialized at config flow CREATE_ENTRY time with all per-zone defaults including calibrated_flow=None
+- [Phase 02-config-flow]: IrrigationMonitorOptionsFlowHandler stub (returns existing options unchanged) — Plan 02-02 implements full options flow
 
 ### Pending Todos
 
@@ -79,6 +83,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-20T06:51:12.662Z
-Stopped at: Phase 2 context gathered
-Resume file: .planning/phases/02-config-flow/02-CONTEXT.md
+Last session: 2026-03-20T07:36:07.999Z
+Stopped at: Completed 02-config-flow/02-01-PLAN.md
+Resume file: None

@@ -46,8 +46,8 @@
 
 ### Development Infrastructure (INFRA)
 
-- [ ] **INFRA-01**: Integration is installable via HACS as a custom repository (valid manifest.json, hacs.json, semver tags)
-- [ ] **INFRA-02**: pytest test suite with pytest-homeassistant-custom-component covers coordinator logic, calibration sequence, leak detection, and daily usage tracking using mock Flume and valve entities
+- [x] **INFRA-01**: Integration is installable via HACS as a custom repository (valid manifest.json, hacs.json, semver tags)
+- [x] **INFRA-02**: pytest test suite with pytest-homeassistant-custom-component covers coordinator logic, calibration sequence, leak detection, and daily usage tracking using mock Flume and valve entities
 
 ## v2 Requirements
 
@@ -106,8 +106,8 @@ Updated during roadmap creation.
 | CARD-01 | Phase 6 | Pending |
 | CARD-02 | Phase 6 | Pending |
 | CARD-03 | Phase 6 | Pending |
-| INFRA-01 | Phase 1 | Pending |
-| INFRA-02 | Phase 1 | Pending |
+| INFRA-01 | Phase 1 | Complete |
+| INFRA-02 | Phase 1 | Complete |
 
 **Coverage:**
 - v1 requirements: 26 total

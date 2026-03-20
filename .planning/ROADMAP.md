@@ -12,7 +12,7 @@ This integration is built in dependency order: the scaffold establishes the HACS
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Scaffold** - HACS-compliant integration skeleton with working pytest infrastructure
+- [x] **Phase 1: Scaffold** - HACS-compliant integration skeleton with working pytest infrastructure (completed 2026-03-20)
 - [ ] **Phase 2: Config Flow** - Setup UI discovers irrigation valves; user selects zones and configures per-zone options
 - [ ] **Phase 3: Coordinator + Usage** - DataUpdateCoordinator polls Flume; per-zone daily usage sensors track and persist across restarts
 - [ ] **Phase 4: Calibration** - Button-driven calibration workflow records per-zone baseline flow and stores it persistently
@@ -29,7 +29,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   1. Integration can be added as a custom HACS repository without validation errors
   2. Running `pytest` against the test suite completes without errors (even with no tests yet — environment is functional)
   3. Integration loads in a local HA instance without errors (empty config flow, no entities registered yet)
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 Plans:
 - [ ] 01-01-PLAN.md — Integration skeleton, HACS metadata, and pytest infrastructure
 
@@ -96,7 +96,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Scaffold | 0/1 | Planning complete | - |
+| 1. Scaffold | 1/1 | Complete   | 2026-03-20 |
 | 2. Config Flow | 0/? | Not started | - |
 | 3. Coordinator + Usage | 0/? | Not started | - |
 | 4. Calibration | 0/? | Not started | - |

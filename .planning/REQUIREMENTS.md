@@ -82,38 +82,38 @@ Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SETUP-01 | — | Pending |
-| SETUP-02 | — | Pending |
-| SETUP-03 | — | Pending |
-| SETUP-04 | — | Pending |
-| SETUP-05 | — | Pending |
-| SETUP-06 | — | Pending |
-| SETUP-07 | — | Pending |
-| CALIB-01 | — | Pending |
-| CALIB-02 | — | Pending |
-| CALIB-03 | — | Pending |
-| CALIB-04 | — | Pending |
-| CALIB-05 | — | Pending |
-| CALIB-06 | — | Pending |
-| DETECT-01 | — | Pending |
-| DETECT-02 | — | Pending |
-| DETECT-03 | — | Pending |
-| DETECT-04 | — | Pending |
-| DETECT-05 | — | Pending |
-| USAGE-01 | — | Pending |
-| USAGE-02 | — | Pending |
-| USAGE-03 | — | Pending |
-| CARD-01 | — | Pending |
-| CARD-02 | — | Pending |
-| CARD-03 | — | Pending |
-| INFRA-01 | — | Pending |
-| INFRA-02 | — | Pending |
+| SETUP-01 | Phase 2 | Pending |
+| SETUP-02 | Phase 2 | Pending |
+| SETUP-03 | Phase 2 | Pending |
+| SETUP-04 | Phase 2 | Pending |
+| SETUP-05 | Phase 2 | Pending |
+| SETUP-06 | Phase 2 | Pending |
+| SETUP-07 | Phase 2 | Pending |
+| CALIB-01 | Phase 4 | Pending |
+| CALIB-02 | Phase 4 | Pending |
+| CALIB-03 | Phase 4 | Pending |
+| CALIB-04 | Phase 4 | Pending |
+| CALIB-05 | Phase 4 | Pending |
+| CALIB-06 | Phase 4 | Pending |
+| DETECT-01 | Phase 5 | Pending |
+| DETECT-02 | Phase 5 | Pending |
+| DETECT-03 | Phase 5 | Pending |
+| DETECT-04 | Phase 5 | Pending |
+| DETECT-05 | Phase 5 | Pending |
+| USAGE-01 | Phase 3 | Pending |
+| USAGE-02 | Phase 3 | Pending |
+| USAGE-03 | Phase 3 | Pending |
+| CARD-01 | Phase 6 | Pending |
+| CARD-02 | Phase 6 | Pending |
+| CARD-03 | Phase 6 | Pending |
+| INFRA-01 | Phase 1 | Pending |
+| INFRA-02 | Phase 1 | Pending |
 
 **Coverage:**
 - v1 requirements: 26 total
-- Mapped to phases: 0
-- Unmapped: 26 (pending roadmap)
+- Mapped to phases: 26
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-19*
-*Last updated: 2026-03-19 after initial definition*
+*Last updated: 2026-03-19 after roadmap creation*

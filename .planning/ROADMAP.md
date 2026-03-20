@@ -96,7 +96,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Scaffold | 1/1 | Complete   | 2026-03-20 |
+| 1. Scaffold | 1/1 | Complete    | 2026-03-20 |
 | 2. Config Flow | 0/? | Not started | - |
 | 3. Coordinator + Usage | 0/? | Not started | - |
 | 4. Calibration | 0/? | Not started | - |

@@ -1,0 +1,13 @@
+{
+  "domain": "irrigation_monitor",
+  "name": "Irrigation Monitor",
+  "version": "0.1.0",
+  "documentation": "https://github.com/OWNER/water-flow",
+  "issue_tracker": "https://github.com/OWNER/water-flow/issues",
+  "codeowners": [],
+  "dependencies": [],
+  "requirements": [],
+  "iot_class": "local_polling",
+  "integration_type": "hub",
+  "config_flow": false
+}

@@ -29,7 +29,9 @@ Decimal phases appear between their surrounding integers in numeric order.
   1. Integration can be added as a custom HACS repository without validation errors
   2. Running `pytest` against the test suite completes without errors (even with no tests yet — environment is functional)
   3. Integration loads in a local HA instance without errors (empty config flow, no entities registered yet)
-**Plans**: TBD
+**Plans:** 1 plan
+Plans:
+- [ ] 01-01-PLAN.md — Integration skeleton, HACS metadata, and pytest infrastructure
 
 ### Phase 2: Config Flow
 **Goal**: Users can install the integration, select their Flume sensor, pick which valves to monitor, and configure per-zone options — all through the HA UI with no YAML
@@ -94,7 +96,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Scaffold | 0/? | Not started | - |
+| 1. Scaffold | 0/1 | Planning complete | - |
 | 2. Config Flow | 0/? | Not started | - |
 | 3. Coordinator + Usage | 0/? | Not started | - |
 | 4. Calibration | 0/? | Not started | - |

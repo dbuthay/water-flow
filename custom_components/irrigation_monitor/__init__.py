@@ -1,6 +1,9 @@
 """The Irrigation Monitor integration."""
 from __future__ import annotations
 
+from pathlib import Path
+
+from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
@@ -18,6 +21,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: IrrigationConfigEntry) -
     await coordinator.async_config_entry_first_refresh()
     entry.runtime_data = coordinator
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+
+    # Register Lovelace card JS as a static HTTP resource
+    www_path = str(Path(__file__).parent / "www" / "irrigation-monitor-card.js")
+    try:
+        await hass.http.async_register_static_paths(
+            [StaticPathConfig("/local/irrigation-monitor-card.js", www_path, True)]
+        )
+    except Exception:
+        # Already registered (e.g., HA reload) -- safe to ignore
+        pass
+
     return True
 
 

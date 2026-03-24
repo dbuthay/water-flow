@@ -34,9 +34,9 @@
 
 ### Usage Tracking (USAGE)
 
-- [ ] **USAGE-01**: Integration exposes a sensor entity per monitored zone showing daily water usage (gallons accumulated since midnight)
-- [ ] **USAGE-02**: Daily usage totals persist across HA restarts and only reset at midnight (not on restart)
-- [ ] **USAGE-03**: If HA was offline at midnight, daily totals reset correctly on next startup based on stored date comparison
+- [x] **USAGE-01**: Integration exposes a sensor entity per monitored zone showing daily water usage (gallons accumulated since midnight)
+- [x] **USAGE-02**: Daily usage totals persist across HA restarts and only reset at midnight (not on restart)
+- [x] **USAGE-03**: If HA was offline at midnight, daily totals reset correctly on next startup based on stored date comparison
 
 ### Lovelace Card (CARD)
 
@@ -100,9 +100,9 @@ Updated during roadmap creation.
 | DETECT-03 | Phase 5 | Pending |
 | DETECT-04 | Phase 5 | Pending |
 | DETECT-05 | Phase 5 | Pending |
-| USAGE-01 | Phase 3 | Pending |
-| USAGE-02 | Phase 3 | Pending |
-| USAGE-03 | Phase 3 | Pending |
+| USAGE-01 | Phase 3 | Complete |
+| USAGE-02 | Phase 3 | Complete |
+| USAGE-03 | Phase 3 | Complete |
 | CARD-01 | Phase 6 | Pending |
 | CARD-02 | Phase 6 | Pending |
 | CARD-03 | Phase 6 | Pending |

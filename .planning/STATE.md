@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Phase 3 context gathered
-last_updated: "2026-03-24T03:47:14.478Z"
-last_activity: "2026-03-20 — Completed Phase 2 Plan 02: Full options flow with CRITICAL merge pattern"
+stopped_at: Completed 03-coordinator-usage 03-01-PLAN.md
+last_updated: "2026-03-24T04:25:06.331Z"
+last_activity: 2026-03-24
 progress:
   total_phases: 6
   completed_phases: 2
-  total_plans: 3
-  completed_plans: 3
+  total_plans: 5
+  completed_plans: 4
   percent: 0
 ---
 
@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 Phase: 2 of 6 (Config Flow)
 Plan: 2 of 2 in current phase
 Status: Phase complete — ready for Phase 3
-Last activity: 2026-03-20 — Completed Phase 2 Plan 02: Full options flow with CRITICAL merge pattern
+Last activity: 2026-03-24
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -55,6 +55,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01-scaffold P01 | 5 | 2 tasks | 10 files |
 | Phase 02-config-flow P02-01 | 12 | 2 tasks | 7 files |
 | Phase 02-config-flow P02-02 | 6 | 2 tasks | 2 files |
+| Phase 03-coordinator-usage P01 | 6 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -76,6 +77,9 @@ Recent decisions affecting current work:
 - [Phase 02-config-flow 02-02]: New zones initialized with full defaults dict (incl. calibrated_flow=None) before merging user input — prevents KeyError in Phase 4 calibration reads
 - [Phase 02-config-flow 02-02]: Zone iterator pattern (_zone_iterator popped per step) drives per-zone forms; final merge executes when iterator is empty
 - [Phase 02-config-flow 02-02]: ConfigEntry.data updated via async_update_entry before async_create_entry to keep data and options in sync for Phase 3 coordinator
+- [Phase 03-coordinator-usage]: Store flush on entry unload via async_save (not just async_delay_save) ensures persistence test and production reliability
+- [Phase 03-coordinator-usage]: Sensor entity_id set explicitly using zone_slug (dots->underscores) for predictable test entity IDs
+- [Phase 03-coordinator-usage]: type IrrigationConfigEntry = ConfigEntry[IrrigationCoordinator] for type-safe entry access across platforms
 
 ### Pending Todos
 
@@ -89,6 +93,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-24T03:47:14.474Z
-Stopped at: Phase 3 context gathered
-Resume file: .planning/phases/03-coordinator-usage/03-CONTEXT.md
+Last session: 2026-03-24T04:25:06.327Z
+Stopped at: Completed 03-coordinator-usage 03-01-PLAN.md
+Resume file: None

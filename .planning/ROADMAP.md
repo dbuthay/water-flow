@@ -57,9 +57,9 @@ Plans:
   2. After restarting HA mid-day, each zone's daily usage sensor resumes from the pre-restart total (not reset to zero)
   3. If HA was offline at midnight, daily usage totals reset correctly on next startup based on stored date — they do not retain yesterday's values
   4. When the Flume sensor reports unavailable or unknown, the integration marks itself unavailable rather than crashing or firing false events
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 Plans:
-- [ ] 03-01-PLAN.md — RED test stubs + IrrigationCoordinator with Store persistence, midnight reset, multi-zone attribution
+- [x] 03-01-PLAN.md — RED test stubs + IrrigationCoordinator with Store persistence, midnight reset, multi-zone attribution
 - [ ] 03-02-PLAN.md — Sensor entities (DailyUsageSensor + FlowRateSensor) and GREEN test pass
 
 ### Phase 4: Calibration
@@ -104,7 +104,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 |-------|----------------|--------|-----------|
 | 1. Scaffold | 1/1 | Complete    | 2026-03-20 |
 | 2. Config Flow | 2/2 | Complete    | 2026-03-20 |
-| 3. Coordinator + Usage | 0/2 | In progress | - |
+| 3. Coordinator + Usage | 1/2 | In Progress|  |
 | 4. Calibration | 0/? | Not started | - |
 | 5. Leak Detection | 0/? | Not started | - |
 | 6. Lovelace Card | 0/? | Not started | - |

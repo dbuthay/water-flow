@@ -249,20 +249,154 @@ async def test_calibration_saves_to_options(
     assert mock_config_entry.options[CONF_ZONES][zone_id][CONF_CALIBRATED_FLOW] == pytest.approx(2.0)
 
 
-@pytest.mark.xfail(reason="Re-calibration path — implemented in Plan 04-03")
 async def test_recalibration_pending_flow(
     hass: HomeAssistant, mock_config_entry: MockConfigEntry
 ) -> None:
     """CALIB-05: re-calibration stores pending result and fires confirm notification."""
-    pytest.fail("not implemented")
+    coordinator = await _setup_integration(hass, mock_config_entry)
+
+    zone_id = "switch.rachio_zone_1"
+    other_zone_id = "switch.rachio_zone_2"
+
+    # Set existing calibrated_flow to simulate a previously-calibrated zone
+    hass.config_entries.async_update_entry(
+        mock_config_entry,
+        options={
+            CONF_ZONES: {
+                zone_id: {
+                    **mock_config_entry.options[CONF_ZONES][zone_id],
+                    CONF_CALIBRATED_FLOW: 1.5,
+                },
+                other_zone_id: mock_config_entry.options[CONF_ZONES][other_zone_id],
+            }
+        },
+    )
+
+    # Pass background check (Flume at 0.0) and zone is off
+    hass.states.async_set("sensor.flume_current_interval", "0.0")
+
+    service_calls = []
+
+    async def mock_service(svc_call):
+        service_calls.append(svc_call)
+
+    hass.services.async_register("switch", "turn_on", mock_service)
+    hass.services.async_register("switch", "turn_off", mock_service)
+
+    async def mock_sleep(delay):
+        # Update Flume to stable value so variance detection passes quickly
+        hass.states.async_set("sensor.flume_current_interval", "2.0")
+
+    with patch(
+        "custom_components.irrigation_monitor.coordinator.asyncio.sleep",
+        side_effect=mock_sleep,
+    ):
+        await coordinator.async_calibrate_zone(zone_id)
+
+    # New flow should be stored as pending (not yet written to options)
+    assert coordinator._pending_calibrations[zone_id] == pytest.approx(2.0)
+    # Old value must NOT be overwritten yet
+    assert mock_config_entry.options[CONF_ZONES][zone_id][CONF_CALIBRATED_FLOW] == pytest.approx(1.5)
 
 
-@pytest.mark.xfail(reason="Re-calibration save/cancel actions — implemented in Plan 04-03")
 async def test_recalibration_save_action(
     hass: HomeAssistant, mock_config_entry: MockConfigEntry
 ) -> None:
     """CALIB-05: Save action writes new calibrated_flow; Cancel discards pending result."""
-    pytest.fail("not implemented")
+    coordinator = await _setup_integration(hass, mock_config_entry)
+
+    zone_id = "switch.rachio_zone_1"
+    other_zone_id = "switch.rachio_zone_2"
+    zone_slug = zone_id.replace(".", "_")
+
+    # Set existing calibrated_flow
+    hass.config_entries.async_update_entry(
+        mock_config_entry,
+        options={
+            CONF_ZONES: {
+                zone_id: {
+                    **mock_config_entry.options[CONF_ZONES][zone_id],
+                    CONF_CALIBRATED_FLOW: 1.5,
+                },
+                other_zone_id: mock_config_entry.options[CONF_ZONES][other_zone_id],
+            }
+        },
+    )
+
+    hass.states.async_set("sensor.flume_current_interval", "0.0")
+
+    service_calls = []
+
+    async def mock_service(svc_call):
+        service_calls.append(svc_call)
+
+    hass.services.async_register("switch", "turn_on", mock_service)
+    hass.services.async_register("switch", "turn_off", mock_service)
+
+    async def mock_sleep(delay):
+        hass.states.async_set("sensor.flume_current_interval", "2.0")
+
+    # Run re-calibration to get pending state
+    with patch(
+        "custom_components.irrigation_monitor.coordinator.asyncio.sleep",
+        side_effect=mock_sleep,
+    ):
+        await coordinator.async_calibrate_zone(zone_id)
+
+    assert coordinator._pending_calibrations[zone_id] == pytest.approx(2.0)
+
+    # --- Test Save action ---
+    hass.bus.async_fire(
+        "mobile_app_notification_action",
+        {"action": f"irrigation_monitor_confirm_calibration_{zone_slug}"},
+    )
+    await hass.async_block_till_done()
+
+    # New flow must be written to options
+    assert mock_config_entry.options[CONF_ZONES][zone_id][CONF_CALIBRATED_FLOW] == pytest.approx(2.0)
+    # Pending state must be cleared
+    assert zone_id not in coordinator._pending_calibrations
+
+    # --- Test Cancel action ---
+    # Run re-calibration again to get new pending state
+    # Reset old flow value first (it was overwritten to 2.0 by save)
+    hass.config_entries.async_update_entry(
+        mock_config_entry,
+        options={
+            CONF_ZONES: {
+                zone_id: {
+                    **mock_config_entry.options[CONF_ZONES][zone_id],
+                    CONF_CALIBRATED_FLOW: 2.0,
+                },
+                other_zone_id: mock_config_entry.options[CONF_ZONES][other_zone_id],
+            }
+        },
+    )
+
+    hass.states.async_set("sensor.flume_current_interval", "0.0")
+
+    async def mock_sleep_3(delay):
+        hass.states.async_set("sensor.flume_current_interval", "3.0")
+
+    with patch(
+        "custom_components.irrigation_monitor.coordinator.asyncio.sleep",
+        side_effect=mock_sleep_3,
+    ):
+        await coordinator.async_calibrate_zone(zone_id)
+
+    assert coordinator._pending_calibrations[zone_id] == pytest.approx(3.0)
+
+    # Fire cancel event
+    hass.bus.async_fire(
+        "mobile_app_notification_action",
+        {"action": f"irrigation_monitor_cancel_calibration_{zone_slug}"},
+    )
+    await hass.async_block_till_done()
+
+    # Pending must be cleared
+    assert zone_id not in coordinator._pending_calibrations
+    # Options must still hold the previously-saved 2.0 (cancel did not change it)
+    assert mock_config_entry.options[CONF_ZONES][zone_id][CONF_CALIBRATED_FLOW] == pytest.approx(2.0)
 
 
 async def test_calibration_turns_valve_off_on_success(

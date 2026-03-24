@@ -179,6 +179,155 @@ class IrrigationCoordinator(DataUpdateCoordinator[dict[str, ZoneData]]):
         self._store.async_delay_save(self._data_to_save, 0)
         await self.async_refresh()
 
+    async def _turn_valve(self, zone_id: str, turn_on: bool) -> None:
+        """Turn a valve on or off using the correct service for its domain."""
+        domain = zone_id.split(".")[0]
+        if turn_on:
+            service = "turn_on" if domain == "switch" else "open_valve"
+        else:
+            service = "turn_off" if domain == "switch" else "close_valve"
+        await self.hass.services.async_call(
+            domain, service, {"entity_id": zone_id}, blocking=True
+        )
+
+    def _write_calibrated_flow(self, zone_id: str, flow: float) -> None:
+        """Persist calibrated flow to ConfigEntry.options using safe nested copy.
+
+        ConfigEntry.options is a MappingProxyType. Shallow dict() copy is NOT enough
+        for nested zones dict. Must copy each level before mutating.
+        async_update_entry is a @callback -- do NOT await it.
+        """
+        existing = dict(self._entry.options)
+        zones = dict(existing.get(CONF_ZONES, {}))
+        zone_cfg = dict(zones.get(zone_id, {}))
+        zone_cfg[CONF_CALIBRATED_FLOW] = flow
+        zones[zone_id] = zone_cfg
+        existing[CONF_ZONES] = zones
+        self.hass.config_entries.async_update_entry(self._entry, options=existing)
+
     async def async_calibrate_zone(self, zone_id: str) -> None:
-        """Full calibration sequence for one zone. Implemented in Plan 04-02."""
-        raise NotImplementedError("Calibration sequence not yet implemented")
+        """Full calibration sequence for one zone."""
+        # --- Duplicate press guard ---
+        if zone_id in self._calibrating:
+            return
+        self._calibrating.add(zone_id)
+
+        try:
+            # --- CALIB-02: Background flow check ---
+            threshold = self._entry.data.get(
+                CONF_BACKGROUND_THRESHOLD, DEFAULT_BACKGROUND_THRESHOLD
+            )
+            flume_id = self._entry.data[CONF_FLUME_ENTITY_ID]
+            state = self.hass.states.get(flume_id)
+            if state is None or state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN):
+                async_create(
+                    self.hass,
+                    "Calibration failed: Flume sensor unavailable.",
+                    title="Irrigation Monitor",
+                    notification_id=f"calib_{zone_id}_fail",
+                )
+                return
+
+            current_flow = float(state.state)
+            if current_flow > threshold:
+                async_create(
+                    self.hass,
+                    f"Background water flow detected ({current_flow:.1f} gal/min). "
+                    "Stop all other water use before calibrating.",
+                    title="Irrigation Monitor",
+                    notification_id=f"calib_{zone_id}_background",
+                )
+                return
+
+            # --- CALIB-03: Zone already running guard ---
+            if self._zone_is_on(zone_id):
+                async_create(
+                    self.hass,
+                    f"Zone {zone_id} is already running. Stop it first.",
+                    title="Irrigation Monitor",
+                    notification_id=f"calib_{zone_id}_running",
+                )
+                return
+
+            # --- CALIB-04: Start calibration ---
+            async_create(
+                self.hass,
+                f"Calibrating {zone_id}... please wait.",
+                title="Irrigation Monitor",
+                notification_id=f"calib_{zone_id}_progress",
+            )
+
+            try:
+                await self._turn_valve(zone_id, turn_on=True)
+
+                # Variance detection loop (max STABILIZATION_TIMEOUT, poll every STABILIZATION_POLL_INTERVAL)
+                readings: list[float] = []
+                elapsed = 0
+                stable = False
+                while elapsed < STABILIZATION_TIMEOUT:
+                    await asyncio.sleep(STABILIZATION_POLL_INTERVAL)
+                    elapsed += STABILIZATION_POLL_INTERVAL
+                    s = self.hass.states.get(flume_id)
+                    if s is None or s.state in (STATE_UNAVAILABLE, STATE_UNKNOWN):
+                        raise RuntimeError("Flume went unavailable during calibration")
+                    readings.append(float(s.state))
+                    if len(readings) >= 3:
+                        if statistics.stdev(readings[-3:]) < VARIANCE_THRESHOLD:
+                            stable = True
+                            break
+
+                if not stable:
+                    raise RuntimeError("Flow did not stabilize within 60 seconds")
+
+                # Sample SAMPLE_COUNT readings over SAMPLE_COUNT * SAMPLE_INTERVAL seconds
+                samples: list[float] = []
+                for _ in range(SAMPLE_COUNT):
+                    await asyncio.sleep(SAMPLE_INTERVAL)
+                    s = self.hass.states.get(flume_id)
+                    if s is None or s.state in (STATE_UNAVAILABLE, STATE_UNKNOWN):
+                        raise RuntimeError("Flume went unavailable during sampling")
+                    samples.append(float(s.state))
+                new_flow = sum(samples) / len(samples)
+
+                # --- CALIB-05: Persist or pending ---
+                zones_cfg = self._entry.options.get(CONF_ZONES, {})
+                old_flow = zones_cfg.get(zone_id, {}).get(CONF_CALIBRATED_FLOW)
+
+                if old_flow is not None:
+                    # Re-calibration path -- placeholder, Plan 04-03 adds action buttons
+                    self._pending_calibrations[zone_id] = new_flow
+                    async_dismiss(self.hass, f"calib_{zone_id}_progress")
+                    async_create(
+                        self.hass,
+                        f"Zone {zone_id} recalibration complete.\n"
+                        f"Old: {old_flow:.1f} gal/min -> New: {new_flow:.1f} gal/min.\n"
+                        "Save or Cancel?",
+                        title="Irrigation Monitor",
+                        notification_id=f"calib_{zone_id}_confirm",
+                    )
+                else:
+                    # --- First calibration: write immediately ---
+                    self._write_calibrated_flow(zone_id, new_flow)
+                    async_dismiss(self.hass, f"calib_{zone_id}_progress")
+                    async_create(
+                        self.hass,
+                        f"Zone {zone_id} calibrated: {new_flow:.1f} gal/min",
+                        title="Irrigation Monitor",
+                        notification_id=f"calib_{zone_id}_success",
+                    )
+
+            except Exception as err:
+                async_dismiss(self.hass, f"calib_{zone_id}_progress")
+                async_create(
+                    self.hass,
+                    f"Calibration failed for {zone_id}: {err}",
+                    title="Irrigation Monitor",
+                    notification_id=f"calib_{zone_id}_fail",
+                )
+                _LOGGER.exception("Calibration error for %s", zone_id)
+            finally:
+                # --- CALIB-06: Always turn valve off ---
+                await self._turn_valve(zone_id, turn_on=False)
+
+        finally:
+            self._calibrating.discard(zone_id)

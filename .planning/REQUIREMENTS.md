@@ -40,9 +40,9 @@
 
 ### Lovelace Card (CARD)
 
-- [ ] **CARD-01**: Custom Lovelace card displays all monitored zones with their current state (idle / running / leak detected)
-- [ ] **CARD-02**: Card shows the current flow rate for each active zone
-- [ ] **CARD-03**: Card shows today's water usage per zone
+- [x] **CARD-01**: Custom Lovelace card displays all monitored zones with their current state (idle / running / leak detected)
+- [x] **CARD-02**: Card shows the current flow rate for each active zone
+- [x] **CARD-03**: Card shows today's water usage per zone
 
 ### Development Infrastructure (INFRA)
 
@@ -103,9 +103,9 @@ Updated during roadmap creation.
 | USAGE-01 | Phase 3 | Complete |
 | USAGE-02 | Phase 3 | Complete |
 | USAGE-03 | Phase 3 | Complete |
-| CARD-01 | Phase 6 | Pending |
-| CARD-02 | Phase 6 | Pending |
-| CARD-03 | Phase 6 | Pending |
+| CARD-01 | Phase 6 | Complete |
+| CARD-02 | Phase 6 | Complete |
+| CARD-03 | Phase 6 | Complete |
 | INFRA-01 | Phase 1 | Complete |
 | INFRA-02 | Phase 1 | Complete |
 

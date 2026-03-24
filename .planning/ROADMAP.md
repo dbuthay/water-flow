@@ -100,9 +100,9 @@ Plans:
   1. The Lovelace card can be added to a dashboard and displays all monitored zones with their current state (idle / running / leak detected)
   2. For any zone currently running, the card shows the current flow rate in real time
   3. The card shows today's water usage total for each zone
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 Plans:
-- [ ] 06-01-PLAN.md — Static path registration + complete Lovelace card JS implementation with tests
+- [x] 06-01-PLAN.md — Static path registration + complete Lovelace card JS implementation with tests
 - [ ] 06-02-PLAN.md — README installation docs + visual verification checkpoint
 
 ## Progress
@@ -117,4 +117,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 3. Coordinator + Usage | 2/2 | Complete    | 2026-03-24 |
 | 4. Calibration | 3/3 | Complete    | 2026-03-24 |
 | 5. Leak Detection | 2/2 | Complete    | 2026-03-24 |
-| 6. Lovelace Card | 0/2 | In progress | - |
+| 6. Lovelace Card | 1/2 | In Progress|  |

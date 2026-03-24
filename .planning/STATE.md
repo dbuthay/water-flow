@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Phase 6 context gathered
-last_updated: "2026-03-24T06:28:31.300Z"
+stopped_at: Completed 06-lovelace-card 06-01-PLAN.md
+last_updated: "2026-03-24T06:51:15.123Z"
 last_activity: 2026-03-24
 progress:
   total_phases: 6
   completed_phases: 5
-  total_plans: 10
-  completed_plans: 10
+  total_plans: 12
+  completed_plans: 11
   percent: 0
 ---
 
@@ -62,6 +62,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 04-calibration P03 | 8 | 2 tasks | 2 files |
 | Phase 05 P01 | 3 | 2 tasks | 4 files |
 | Phase 05-leak-detection P02 | 11 | 2 tasks | 3 files |
+| Phase 06-lovelace-card P01 | 2 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -100,6 +101,8 @@ Recent decisions affecting current work:
 - [Phase 05-02]: ZoneStatusSensor omits state_class and device_class — text enum values incompatible with HA statistics recorder
 - [Phase 05-02]: AcknowledgeLeakButtonEntity uses async_update_listeners() (no await) not async_request_refresh() to avoid unnecessary Flume poll on acknowledge
 - [Phase 05-02]: Tests mock coordinator._turn_valve with AsyncMock to avoid ServiceNotFound — switch/valve services not registered in pytest-homeassistant test harness
+- [Phase 06-lovelace-card]: Use async_register_static_paths (plural, async) with StaticPathConfig -- NOT deprecated register_static_path (singular, sync) removed in HA 2024.7+
+- [Phase 06-lovelace-card]: Vanilla HTMLElement Web Component (no Lit/TypeScript/build step) per locked decision; XSS protection via _escapeHtml() for innerHTML template literals
 
 ### Pending Todos
 
@@ -113,6 +116,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-24T06:28:31.290Z
-Stopped at: Phase 6 context gathered
-Resume file: .planning/phases/06-lovelace-card/06-CONTEXT.md
+Last session: 2026-03-24T06:51:15.119Z
+Stopped at: Completed 06-lovelace-card 06-01-PLAN.md
+Resume file: None

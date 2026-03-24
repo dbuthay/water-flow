@@ -109,6 +109,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 1. Scaffold | 1/1 | Complete    | 2026-03-20 |
 | 2. Config Flow | 2/2 | Complete    | 2026-03-20 |
 | 3. Coordinator + Usage | 2/2 | Complete    | 2026-03-24 |
-| 4. Calibration | 3/3 | Complete   | 2026-03-24 |
+| 4. Calibration | 3/3 | Complete    | 2026-03-24 |
 | 5. Leak Detection | 0/? | Not started | - |
 | 6. Lovelace Card | 0/? | Not started | - |

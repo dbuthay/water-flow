@@ -17,7 +17,7 @@
 
 ### Calibration (CALIB)
 
-- [ ] **CALIB-01**: User can trigger calibration for a monitored zone via a button entity in the HA UI
+- [x] **CALIB-01**: User can trigger calibration for a monitored zone via a button entity in the HA UI
 - [ ] **CALIB-02**: Integration checks for background water flow before starting calibration and warns the user if flow is detected above a minimum threshold
 - [ ] **CALIB-03**: Integration aborts calibration if the target zone is already running (active schedule or manual activation)
 - [ ] **CALIB-04**: Integration turns on the valve, waits for flow to stabilize (configurable delay, default 30s), then samples Flume flow over a window to compute a reliable average
@@ -89,7 +89,7 @@ Updated during roadmap creation.
 | SETUP-05 | Phase 2 | Complete |
 | SETUP-06 | Phase 2 | Complete |
 | SETUP-07 | Phase 2 | Complete |
-| CALIB-01 | Phase 4 | Pending |
+| CALIB-01 | Phase 4 | Complete |
 | CALIB-02 | Phase 4 | Pending |
 | CALIB-03 | Phase 4 | Pending |
 | CALIB-04 | Phase 4 | Pending |

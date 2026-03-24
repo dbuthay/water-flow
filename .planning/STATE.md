@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Phase 4 context gathered
-last_updated: "2026-03-24T04:45:11.851Z"
+stopped_at: Completed 04-calibration-01-PLAN.md
+last_updated: "2026-03-24T05:11:09.637Z"
 last_activity: 2026-03-24
 progress:
   total_phases: 6
   completed_phases: 3
-  total_plans: 5
-  completed_plans: 5
+  total_plans: 8
+  completed_plans: 6
   percent: 0
 ---
 
@@ -57,6 +57,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 02-config-flow P02-02 | 6 | 2 tasks | 2 files |
 | Phase 03-coordinator-usage P01 | 6 | 2 tasks | 6 files |
 | Phase 03-coordinator-usage P02 | 5 | 2 tasks | 2 files |
+| Phase 04-calibration P01 | 3 | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -84,6 +85,8 @@ Recent decisions affecting current work:
 - [Phase 03-coordinator-usage]: CoordinatorEntity double-inheritance: CoordinatorEntity[IrrigationCoordinator] + SensorEntity for auto-wired HA state updates without manual async_write_ha_state calls
 - [Phase 03-coordinator-usage]: Sensor entity_id set explicitly using zone_slug (dots->underscores) for predictable test assertions
 - [Phase 03-coordinator-usage]: No custom available property override on sensors — CoordinatorEntity.available delegates to coordinator.last_update_success automatically
+- [Phase 04-calibration]: async_press uses entry.async_create_background_task for fire-and-forget calibration (not asyncio.create_task)
+- [Phase 04-calibration]: Wave 0 xfail test stubs collected by pytest without failing the suite; Plan 04-02 will implement full sequence
 
 ### Pending Todos
 
@@ -97,6 +100,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-24T04:45:11.846Z
-Stopped at: Phase 4 context gathered
-Resume file: .planning/phases/04-calibration/04-CONTEXT.md
+Last session: 2026-03-24T05:11:09.632Z
+Stopped at: Completed 04-calibration-01-PLAN.md
+Resume file: None

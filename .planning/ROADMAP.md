@@ -72,7 +72,11 @@ Plans:
   3. If the target zone is already running when calibration is triggered, calibration aborts without turning anything on or off
   4. After a successful calibration run, the recorded baseline flow rate is displayed to the user via an HA notification
   5. After an HA restart, the previously calibrated flow rate is still present and the zone does not require re-calibration
-**Plans**: TBD
+**Plans:** 3 plans
+Plans:
+- [ ] 04-01-PLAN.md — Wave 0 test stubs, calibration constants, CalibrateButtonEntity scaffold
+- [ ] 04-02-PLAN.md — Full calibration sequence (guards, valve control, variance detection, options write) + first-cal tests GREEN
+- [ ] 04-03-PLAN.md — Re-calibration flow with action-button notifications + remaining tests GREEN
 
 ### Phase 5: Leak Detection
 **Goal**: The integration continuously monitors active zones against their calibrated baselines and automatically shuts off valves and fires alerts when anomalous flow is detected
@@ -105,6 +109,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 1. Scaffold | 1/1 | Complete    | 2026-03-20 |
 | 2. Config Flow | 2/2 | Complete    | 2026-03-20 |
 | 3. Coordinator + Usage | 2/2 | Complete    | 2026-03-24 |
-| 4. Calibration | 0/? | Not started | - |
+| 4. Calibration | 0/3 | In progress | - |
 | 5. Leak Detection | 0/? | Not started | - |
 | 6. Lovelace Card | 0/? | Not started | - |

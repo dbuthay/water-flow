@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Config Flow** - Setup UI discovers irrigation valves; user selects zones and configures per-zone options (completed 2026-03-20)
 - [x] **Phase 3: Coordinator + Usage** - DataUpdateCoordinator polls Flume; per-zone daily usage sensors track and persist across restarts (completed 2026-03-24)
 - [x] **Phase 4: Calibration** - Button-driven calibration workflow records per-zone baseline flow and stores it persistently (completed 2026-03-24)
-- [ ] **Phase 5: Leak Detection** - Coordinator detects flow anomalies, auto-shuts off valves, and fires HA notifications
+- [x] **Phase 5: Leak Detection** - Coordinator detects flow anomalies, auto-shuts off valves, and fires HA notifications (completed 2026-03-24)
 - [ ] **Phase 6: Lovelace Card** - Custom dashboard card shows zone status, active flow rates, and daily usage
 
 ## Phase Details
@@ -87,10 +87,10 @@ Plans:
   2. When a running zone's flow exceeds the threshold and alerts are enabled, the user receives an HA notification identifying the zone and showing measured vs. expected flow
   3. Immediately after a valve turns on, the integration does not evaluate for leaks during the configurable ramp-up window (no false positives at zone start)
   4. When the Flume sensor becomes unavailable while a zone is active, no shutoff or alert is triggered — the integration handles the missing data gracefully
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 Plans:
 - [x] 05-01-PLAN.md — Wave 0 test stubs + coordinator leak detection engine (transitions, ramp-up, threshold, shutoff, notifications)
-- [ ] 05-02-PLAN.md — ZoneStatusSensor + AcknowledgeLeakButtonEntity + all leak tests GREEN
+- [x] 05-02-PLAN.md — ZoneStatusSensor + AcknowledgeLeakButtonEntity + all leak tests GREEN
 
 ### Phase 6: Lovelace Card
 **Goal**: A custom Lovelace card gives users a single-glance view of all monitored zones with their current state, active flow rate, and daily usage
@@ -113,5 +113,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 2. Config Flow | 2/2 | Complete    | 2026-03-20 |
 | 3. Coordinator + Usage | 2/2 | Complete    | 2026-03-24 |
 | 4. Calibration | 3/3 | Complete    | 2026-03-24 |
-| 5. Leak Detection | 1/2 | In Progress|  |
+| 5. Leak Detection | 2/2 | Complete   | 2026-03-24 |
 | 6. Lovelace Card | 0/? | Not started | - |

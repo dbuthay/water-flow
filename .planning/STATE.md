@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed 05-01-PLAN.md
-last_updated: "2026-03-24T05:57:53.621Z"
+stopped_at: Completed 05-02-PLAN.md
+last_updated: "2026-03-24T06:14:24.198Z"
 last_activity: 2026-03-24
 progress:
   total_phases: 6
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 10
-  completed_plans: 9
+  completed_plans: 10
   percent: 0
 ---
 
@@ -61,6 +61,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 04-calibration P02 | 2 | 2 tasks | 2 files |
 | Phase 04-calibration P03 | 8 | 2 tasks | 2 files |
 | Phase 05 P01 | 3 | 2 tasks | 4 files |
+| Phase 05-leak-detection P02 | 11 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -96,6 +97,9 @@ Recent decisions affecting current work:
 - [Phase 04-calibration]: One-shot event listener: unsub inside handler + entry.async_on_unload for leak-safe cleanup on entry unload
 - [Phase 05-01]: ramp_up_polls stored globally in ConfigEntry.options (not per-zone)
 - [Phase 05-01]: leak_statuses kept as coordinator dict (not ZoneData field) — Plan 02 wires sensors to it
+- [Phase 05-02]: ZoneStatusSensor omits state_class and device_class — text enum values incompatible with HA statistics recorder
+- [Phase 05-02]: AcknowledgeLeakButtonEntity uses async_update_listeners() (no await) not async_request_refresh() to avoid unnecessary Flume poll on acknowledge
+- [Phase 05-02]: Tests mock coordinator._turn_valve with AsyncMock to avoid ServiceNotFound — switch/valve services not registered in pytest-homeassistant test harness
 
 ### Pending Todos
 
@@ -109,6 +113,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-24T05:57:53.617Z
-Stopped at: Completed 05-01-PLAN.md
+Last session: 2026-03-24T06:14:24.194Z
+Stopped at: Completed 05-02-PLAN.md
 Resume file: None

@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Scaffold** - HACS-compliant integration skeleton with working pytest infrastructure (completed 2026-03-20)
 - [x] **Phase 2: Config Flow** - Setup UI discovers irrigation valves; user selects zones and configures per-zone options (completed 2026-03-20)
 - [x] **Phase 3: Coordinator + Usage** - DataUpdateCoordinator polls Flume; per-zone daily usage sensors track and persist across restarts (completed 2026-03-24)
-- [ ] **Phase 4: Calibration** - Button-driven calibration workflow records per-zone baseline flow and stores it persistently
+- [x] **Phase 4: Calibration** - Button-driven calibration workflow records per-zone baseline flow and stores it persistently (completed 2026-03-24)
 - [ ] **Phase 5: Leak Detection** - Coordinator detects flow anomalies, auto-shuts off valves, and fires HA notifications
 - [ ] **Phase 6: Lovelace Card** - Custom dashboard card shows zone status, active flow rates, and daily usage
 
@@ -72,11 +72,11 @@ Plans:
   3. If the target zone is already running when calibration is triggered, calibration aborts without turning anything on or off
   4. After a successful calibration run, the recorded baseline flow rate is displayed to the user via an HA notification
   5. After an HA restart, the previously calibrated flow rate is still present and the zone does not require re-calibration
-**Plans:** 2/3 plans executed
+**Plans:** 3/3 plans complete
 Plans:
 - [x] 04-01-PLAN.md — Wave 0 test stubs, calibration constants, CalibrateButtonEntity scaffold
 - [x] 04-02-PLAN.md — Full calibration sequence (guards, valve control, variance detection, options write) + first-cal tests GREEN
-- [ ] 04-03-PLAN.md — Re-calibration flow with action-button notifications + remaining tests GREEN
+- [x] 04-03-PLAN.md — Re-calibration flow with action-button notifications + remaining tests GREEN
 
 ### Phase 5: Leak Detection
 **Goal**: The integration continuously monitors active zones against their calibrated baselines and automatically shuts off valves and fires alerts when anomalous flow is detected
@@ -109,6 +109,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 1. Scaffold | 1/1 | Complete    | 2026-03-20 |
 | 2. Config Flow | 2/2 | Complete    | 2026-03-20 |
 | 3. Coordinator + Usage | 2/2 | Complete    | 2026-03-24 |
-| 4. Calibration | 2/3 | In Progress|  |
+| 4. Calibration | 3/3 | Complete   | 2026-03-24 |
 | 5. Leak Detection | 0/? | Not started | - |
 | 6. Lovelace Card | 0/? | Not started | - |

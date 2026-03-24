@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed 04-calibration-02-PLAN.md
-last_updated: "2026-03-24T05:15:38.443Z"
+stopped_at: Completed 04-calibration-03-PLAN.md
+last_updated: "2026-03-24T05:19:36.622Z"
 last_activity: 2026-03-24
 progress:
   total_phases: 6
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 8
-  completed_plans: 7
+  completed_plans: 8
   percent: 0
 ---
 
@@ -59,6 +59,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 03-coordinator-usage P02 | 5 | 2 tasks | 2 files |
 | Phase 04-calibration P01 | 3 | 2 tasks | 5 files |
 | Phase 04-calibration P02 | 2 | 2 tasks | 2 files |
+| Phase 04-calibration P03 | 8 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -90,6 +91,8 @@ Recent decisions affecting current work:
 - [Phase 04-calibration]: Wave 0 xfail test stubs collected by pytest without failing the suite; Plan 04-02 will implement full sequence
 - [Phase 04-calibration]: Two-level try/finally for calibration: outer removes _calibrating, inner ensures valve always off after turn_on
 - [Phase 04-calibration]: _write_calibrated_flow uses 3-level nested dict copy to safely mutate MappingProxyType ConfigEntry.options
+- [Phase 04-calibration]: Service call layer required for action-button notifications — async_create() has no actions param
+- [Phase 04-calibration]: One-shot event listener: unsub inside handler + entry.async_on_unload for leak-safe cleanup on entry unload
 
 ### Pending Todos
 
@@ -103,6 +106,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-24T05:15:38.439Z
-Stopped at: Completed 04-calibration-02-PLAN.md
+Last session: 2026-03-24T05:19:36.618Z
+Stopped at: Completed 04-calibration-03-PLAN.md
 Resume file: None

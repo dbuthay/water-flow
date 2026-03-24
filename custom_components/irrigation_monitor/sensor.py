@@ -28,6 +28,7 @@ async def async_setup_entry(
     for zone_id in monitored:
         entities.append(DailyUsageSensor(coordinator, entry, zone_id))
         entities.append(FlowRateSensor(coordinator, entry, zone_id))
+        entities.append(ZoneStatusSensor(coordinator, entry, zone_id))
     async_add_entities(entities)
 
 
@@ -91,3 +92,31 @@ class FlowRateSensor(CoordinatorEntity[IrrigationCoordinator], SensorEntity):
             return None
         zone: ZoneData | None = self.coordinator.data.get(self._zone_id)
         return round(zone.flow_rate, 2) if zone else None
+
+
+class ZoneStatusSensor(CoordinatorEntity[IrrigationCoordinator], SensorEntity):
+    """Sensor showing zone status: idle / running / leak_detected."""
+
+    # CRITICAL: Do NOT set _attr_state_class — text enum values are incompatible
+    # with HA statistics. Omitting avoids HA warnings in the recorder.
+    # CRITICAL: Do NOT set _attr_device_class — no matching HA device class for
+    # status strings. Omitting avoids HA entity registry warnings.
+    _attr_has_entity_name = True
+
+    def __init__(
+        self,
+        coordinator: IrrigationCoordinator,
+        entry: ConfigEntry,
+        zone_id: str,
+    ) -> None:
+        super().__init__(coordinator)
+        self._zone_id = zone_id
+        self._attr_unique_id = f"{entry.entry_id}_{zone_id}_status"
+        zone_slug = zone_id.replace(".", "_")
+        self._attr_name = f"{DOMAIN} {zone_slug} status"
+        self.entity_id = f"sensor.{DOMAIN}_{zone_slug}_status"
+
+    @property
+    def native_value(self) -> str:
+        """Return zone status string."""
+        return self.coordinator._leak_statuses.get(self._zone_id, "idle")

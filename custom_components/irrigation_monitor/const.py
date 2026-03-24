@@ -22,3 +22,8 @@ DEFAULT_THRESHOLD_MULTIPLIER = 1.5
 
 # Valve discovery domains
 VALVE_DOMAINS = {"switch", "valve", "binary_sensor"}
+
+# Storage
+STORAGE_KEY = "irrigation_monitor.daily_usage"
+STORAGE_VERSION = 1
+SAVE_DELAY = 30  # seconds — debounce Store writes

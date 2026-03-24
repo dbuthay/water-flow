@@ -156,6 +156,9 @@ async def test_midnight_reset_zeroes_totals(
     state = hass.states.get("sensor.irrigation_monitor_switch_rachio_zone_1_daily_usage")
     assert float(state.state) > 0.0
 
+    # Turn zone off before midnight so no new increment is added during midnight refresh
+    hass.states.async_set(mock_valve_entities[0], "off")
+
     # Fire midnight time change
     async_fire_time_changed(hass, datetime(2026, 3, 25, 0, 0, 0))
     await hass.async_block_till_done()

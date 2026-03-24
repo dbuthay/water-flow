@@ -16,14 +16,19 @@ from homeassistant.helpers.storage import Store
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .const import (
+    CONF_ALERTS_ENABLED,
     CONF_BACKGROUND_THRESHOLD,
     CONF_CALIBRATED_FLOW,
     CONF_FLUME_ENTITY_ID,
     CONF_MONITORED_ZONES,
     CONF_POLL_INTERVAL,
+    CONF_RAMP_UP_POLLS,
+    CONF_SHUTOFF_ENABLED,
     CONF_THRESHOLD_MULTIPLIER,
     CONF_ZONES,
     DEFAULT_BACKGROUND_THRESHOLD,
+    DEFAULT_RAMP_UP_POLLS,
+    DEFAULT_THRESHOLD_MULTIPLIER,
     DOMAIN,
     SAMPLE_COUNT,
     SAMPLE_INTERVAL,
@@ -56,6 +61,10 @@ class IrrigationCoordinator(DataUpdateCoordinator[dict[str, ZoneData]]):
         self._daily_totals: dict[str, float] = {}
         self._pending_calibrations: dict[str, float] = {}
         self._calibrating: set[str] = set()
+        self._zone_was_on: dict[str, bool] = {}
+        self._ramp_up_counters: dict[str, int] = {}
+        self._leak_notified: set[str] = set()
+        self._leak_statuses: dict[str, str] = {}
         super().__init__(
             hass,
             _LOGGER,
@@ -153,6 +162,45 @@ class IrrigationCoordinator(DataUpdateCoordinator[dict[str, ZoneData]]):
                 is_available=True,
             )
 
+            # --- Leak detection (Phase 5) ---
+            ramp_up_polls = self._entry.options.get(CONF_RAMP_UP_POLLS, DEFAULT_RAMP_UP_POLLS)
+            was_on = self._zone_was_on.get(zone_id, False)
+
+            # Transition detection
+            if not was_on and is_on:  # OFF -> ON
+                self._ramp_up_counters[zone_id] = ramp_up_polls
+            elif was_on and not is_on:  # ON -> OFF
+                self._leak_notified.discard(zone_id)
+                if self._leak_statuses.get(zone_id) != "leak_detected":
+                    self._leak_statuses[zone_id] = "idle"
+
+            # Leak detection (only when ON, calibrated, ramp-up exhausted)
+            if is_on and calibrated_flow is not None:
+                ramp = self._ramp_up_counters.get(zone_id, 0)
+                if ramp > 0:
+                    self._ramp_up_counters[zone_id] = ramp - 1
+                    self._leak_statuses[zone_id] = "running"
+                else:
+                    leak_threshold = zone_cfg.get(CONF_THRESHOLD_MULTIPLIER, DEFAULT_THRESHOLD_MULTIPLIER)
+                    if flow_rate > calibrated_flow * leak_threshold:
+                        self._leak_statuses[zone_id] = "leak_detected"
+                        shutoff_enabled = zone_cfg.get(CONF_SHUTOFF_ENABLED, True)
+                        if shutoff_enabled:
+                            await self._turn_valve(zone_id, turn_on=False)
+                        if zone_cfg.get(CONF_ALERTS_ENABLED, True) and zone_id not in self._leak_notified:
+                            await self._fire_leak_notification(zone_id, flow_rate, calibrated_flow, shutoff_enabled)
+                            self._leak_notified.add(zone_id)
+                    else:
+                        self._leak_statuses[zone_id] = "running"
+            elif is_on:
+                # Running but uncalibrated — skip detection silently
+                self._leak_statuses[zone_id] = "running"
+            elif self._leak_statuses.get(zone_id) != "leak_detected":
+                self._leak_statuses[zone_id] = "idle"
+
+            # MUST BE LAST in the per-zone loop body:
+            self._zone_was_on[zone_id] = is_on
+
         self._store.async_delay_save(self._data_to_save, SAVE_DELAY)
         return result
 
@@ -188,6 +236,23 @@ class IrrigationCoordinator(DataUpdateCoordinator[dict[str, ZoneData]]):
             service = "turn_off" if domain == "switch" else "close_valve"
         await self.hass.services.async_call(
             domain, service, {"entity_id": zone_id}, blocking=True
+        )
+
+    async def _fire_leak_notification(
+        self, zone_id: str, flow_rate: float, calibrated_flow: float, shutoff_enabled: bool
+    ) -> None:
+        """Fire a persistent notification for a detected leak."""
+        shutoff_msg = "Valve has been shut off." if shutoff_enabled else "Valve shutoff is disabled."
+        zone_slug = zone_id.replace(".", "_")
+        async_create(
+            self.hass,
+            (
+                f"Leak detected on {zone_id}. "
+                f"Flow: {flow_rate:.1f} gal/min (expected: {calibrated_flow:.1f} gal/min). "
+                f"{shutoff_msg}"
+            ),
+            title="Irrigation Monitor — Leak Alert",
+            notification_id=f"leak_{zone_slug}",
         )
 
     def _write_calibrated_flow(self, zone_id: str, flow: float) -> None:

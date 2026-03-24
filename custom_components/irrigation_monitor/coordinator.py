@@ -10,7 +10,7 @@ from datetime import date, timedelta
 from homeassistant.components.persistent_notification import async_create, async_dismiss
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import STATE_UNAVAILABLE, STATE_UNKNOWN
-from homeassistant.core import HomeAssistant
+from homeassistant.core import Event, HomeAssistant, callback
 from homeassistant.helpers.event import async_track_time_change
 from homeassistant.helpers.storage import Store
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
@@ -205,6 +205,45 @@ class IrrigationCoordinator(DataUpdateCoordinator[dict[str, ZoneData]]):
         existing[CONF_ZONES] = zones
         self.hass.config_entries.async_update_entry(self._entry, options=existing)
 
+    def _register_calibration_action_listener(
+        self, zone_id: str, old_flow: float, new_flow: float
+    ) -> None:
+        """Register a one-time event listener for Save/Cancel action buttons.
+
+        Listens for 'mobile_app_notification_action' events. Save writes new flow
+        to ConfigEntry.options; Cancel discards pending value. Listener is cleaned
+        up on entry unload if user never responds.
+        """
+        zone_slug = zone_id.replace(".", "_")
+        save_action = f"irrigation_monitor_confirm_calibration_{zone_slug}"
+        cancel_action = f"irrigation_monitor_cancel_calibration_{zone_slug}"
+
+        @callback
+        def _handle_action(event: Event) -> None:
+            action = event.data.get("action")
+            if action == save_action:
+                self._write_calibrated_flow(zone_id, new_flow)
+                self._pending_calibrations.pop(zone_id, None)
+                async_dismiss(self.hass, f"calib_{zone_id}_confirm")
+                async_create(
+                    self.hass,
+                    f"Zone {zone_id} calibration saved: {new_flow:.1f} gal/min",
+                    title="Irrigation Monitor",
+                    notification_id=f"calib_{zone_id}_saved",
+                )
+            elif action == cancel_action:
+                self._pending_calibrations.pop(zone_id, None)
+                async_dismiss(self.hass, f"calib_{zone_id}_confirm")
+            else:
+                return  # Not our action -- do not unsubscribe
+            unsub()  # One-shot: remove listener after handling
+
+        unsub = self.hass.bus.async_listen(
+            "mobile_app_notification_action", _handle_action
+        )
+        # Ensure listener is cleaned up if entry is unloaded before user responds
+        self._entry.async_on_unload(unsub)
+
     async def async_calibrate_zone(self, zone_id: str) -> None:
         """Full calibration sequence for one zone."""
         # --- Duplicate press guard ---
@@ -294,16 +333,33 @@ class IrrigationCoordinator(DataUpdateCoordinator[dict[str, ZoneData]]):
                 old_flow = zones_cfg.get(zone_id, {}).get(CONF_CALIBRATED_FLOW)
 
                 if old_flow is not None:
-                    # Re-calibration path -- placeholder, Plan 04-03 adds action buttons
+                    # Re-calibration: store pending, fire action notification
                     self._pending_calibrations[zone_id] = new_flow
+                    self._register_calibration_action_listener(zone_id, old_flow, new_flow)
                     async_dismiss(self.hass, f"calib_{zone_id}_progress")
-                    async_create(
-                        self.hass,
-                        f"Zone {zone_id} recalibration complete.\n"
-                        f"Old: {old_flow:.1f} gal/min -> New: {new_flow:.1f} gal/min.\n"
-                        "Save or Cancel?",
-                        title="Irrigation Monitor",
-                        notification_id=f"calib_{zone_id}_confirm",
+                    zone_slug = zone_id.replace(".", "_")
+                    await self.hass.services.async_call(
+                        "persistent_notification",
+                        "create",
+                        {
+                            "message": (
+                                f"Zone {zone_id} recalibration complete.\n"
+                                f"Old: {old_flow:.1f} gal/min -> New: {new_flow:.1f} gal/min.\n"
+                                "Save or Cancel?"
+                            ),
+                            "title": "Irrigation Monitor",
+                            "notification_id": f"calib_{zone_id}_confirm",
+                            "actions": [
+                                {
+                                    "action": f"irrigation_monitor_confirm_calibration_{zone_slug}",
+                                    "title": "Save",
+                                },
+                                {
+                                    "action": f"irrigation_monitor_cancel_calibration_{zone_slug}",
+                                    "title": "Cancel",
+                                },
+                            ],
+                        },
                     )
                 else:
                     # --- First calibration: write immediately ---

@@ -27,3 +27,12 @@ VALVE_DOMAINS = {"switch", "valve", "binary_sensor"}
 STORAGE_KEY = "irrigation_monitor.daily_usage"
 STORAGE_VERSION = 1
 SAVE_DELAY = 30  # seconds — debounce Store writes
+
+# Calibration
+CONF_BACKGROUND_THRESHOLD = "background_flow_threshold"
+DEFAULT_BACKGROUND_THRESHOLD = 0.1  # gal/min
+VARIANCE_THRESHOLD = 0.05  # std_dev threshold for stabilization
+STABILIZATION_TIMEOUT = 60  # seconds max wait for flow to stabilize
+STABILIZATION_POLL_INTERVAL = 5  # seconds between readings
+SAMPLE_COUNT = 3  # number of readings to average
+SAMPLE_INTERVAL = 5  # seconds between sample readings

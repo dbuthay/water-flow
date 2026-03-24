@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed 04-calibration-01-PLAN.md
-last_updated: "2026-03-24T05:11:09.637Z"
+stopped_at: Completed 04-calibration-02-PLAN.md
+last_updated: "2026-03-24T05:15:38.443Z"
 last_activity: 2026-03-24
 progress:
   total_phases: 6
   completed_phases: 3
   total_plans: 8
-  completed_plans: 6
+  completed_plans: 7
   percent: 0
 ---
 
@@ -58,6 +58,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 03-coordinator-usage P01 | 6 | 2 tasks | 6 files |
 | Phase 03-coordinator-usage P02 | 5 | 2 tasks | 2 files |
 | Phase 04-calibration P01 | 3 | 2 tasks | 5 files |
+| Phase 04-calibration P02 | 2 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -87,6 +88,8 @@ Recent decisions affecting current work:
 - [Phase 03-coordinator-usage]: No custom available property override on sensors — CoordinatorEntity.available delegates to coordinator.last_update_success automatically
 - [Phase 04-calibration]: async_press uses entry.async_create_background_task for fire-and-forget calibration (not asyncio.create_task)
 - [Phase 04-calibration]: Wave 0 xfail test stubs collected by pytest without failing the suite; Plan 04-02 will implement full sequence
+- [Phase 04-calibration]: Two-level try/finally for calibration: outer removes _calibrating, inner ensures valve always off after turn_on
+- [Phase 04-calibration]: _write_calibrated_flow uses 3-level nested dict copy to safely mutate MappingProxyType ConfigEntry.options
 
 ### Pending Todos
 
@@ -100,6 +103,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-24T05:11:09.632Z
-Stopped at: Completed 04-calibration-01-PLAN.md
+Last session: 2026-03-24T05:15:38.439Z
+Stopped at: Completed 04-calibration-02-PLAN.md
 Resume file: None

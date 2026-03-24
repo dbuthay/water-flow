@@ -18,11 +18,11 @@
 ### Calibration (CALIB)
 
 - [x] **CALIB-01**: User can trigger calibration for a monitored zone via a button entity in the HA UI
-- [ ] **CALIB-02**: Integration checks for background water flow before starting calibration and warns the user if flow is detected above a minimum threshold
-- [ ] **CALIB-03**: Integration aborts calibration if the target zone is already running (active schedule or manual activation)
-- [ ] **CALIB-04**: Integration turns on the valve, waits for flow to stabilize (configurable delay, default 30s), then samples Flume flow over a window to compute a reliable average
-- [ ] **CALIB-05**: Calibrated flow rate is stored persistently and survives HA restarts
-- [ ] **CALIB-06**: Integration turns the valve back off after calibration completes and notifies the user of the recorded flow rate
+- [x] **CALIB-02**: Integration checks for background water flow before starting calibration and warns the user if flow is detected above a minimum threshold
+- [x] **CALIB-03**: Integration aborts calibration if the target zone is already running (active schedule or manual activation)
+- [x] **CALIB-04**: Integration turns on the valve, waits for flow to stabilize (configurable delay, default 30s), then samples Flume flow over a window to compute a reliable average
+- [x] **CALIB-05**: Calibrated flow rate is stored persistently and survives HA restarts
+- [x] **CALIB-06**: Integration turns the valve back off after calibration completes and notifies the user of the recorded flow rate
 
 ### Leak Detection (DETECT)
 
@@ -90,11 +90,11 @@ Updated during roadmap creation.
 | SETUP-06 | Phase 2 | Complete |
 | SETUP-07 | Phase 2 | Complete |
 | CALIB-01 | Phase 4 | Complete |
-| CALIB-02 | Phase 4 | Pending |
-| CALIB-03 | Phase 4 | Pending |
-| CALIB-04 | Phase 4 | Pending |
-| CALIB-05 | Phase 4 | Pending |
-| CALIB-06 | Phase 4 | Pending |
+| CALIB-02 | Phase 4 | Complete |
+| CALIB-03 | Phase 4 | Complete |
+| CALIB-04 | Phase 4 | Complete |
+| CALIB-05 | Phase 4 | Complete |
+| CALIB-06 | Phase 4 | Complete |
 | DETECT-01 | Phase 5 | Pending |
 | DETECT-02 | Phase 5 | Pending |
 | DETECT-03 | Phase 5 | Pending |

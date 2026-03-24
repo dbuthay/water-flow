@@ -28,6 +28,10 @@ STORAGE_KEY = "irrigation_monitor.daily_usage"
 STORAGE_VERSION = 1
 SAVE_DELAY = 30  # seconds — debounce Store writes
 
+# Leak detection
+CONF_RAMP_UP_POLLS = "ramp_up_polls"
+DEFAULT_RAMP_UP_POLLS = 2
+
 # Calibration
 CONF_BACKGROUND_THRESHOLD = "background_flow_threshold"
 DEFAULT_BACKGROUND_THRESHOLD = 0.1  # gal/min

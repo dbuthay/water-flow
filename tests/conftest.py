@@ -17,6 +17,8 @@ from custom_components.irrigation_monitor.const import (
     CONF_ALERTS_ENABLED,
     CONF_CALIBRATED_FLOW,
     CONF_THRESHOLD_MULTIPLIER,
+    CONF_RAMP_UP_POLLS,
+    DEFAULT_RAMP_UP_POLLS,
 )
 
 
@@ -96,6 +98,42 @@ def mock_config_entry(
                     CONF_THRESHOLD_MULTIPLIER: 1.5,
                 },
             }
+        },
+    )
+    entry.add_to_hass(hass)
+    return entry
+
+
+@pytest.fixture
+def mock_calibrated_config_entry(
+    hass: HomeAssistant,
+    mock_flume_entity: str,
+    mock_valve_entities: list[str],
+) -> MockConfigEntry:
+    """ConfigEntry with zone 1 calibrated at 2.0 gal/min, ramp-up disabled."""
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        data={
+            CONF_FLUME_ENTITY_ID: mock_flume_entity,
+            CONF_MONITORED_ZONES: mock_valve_entities[:2],
+            CONF_POLL_INTERVAL: 30,
+        },
+        options={
+            CONF_ZONES: {
+                mock_valve_entities[0]: {
+                    CONF_SHUTOFF_ENABLED: True,
+                    CONF_ALERTS_ENABLED: True,
+                    CONF_CALIBRATED_FLOW: 2.0,
+                    CONF_THRESHOLD_MULTIPLIER: 1.5,
+                },
+                mock_valve_entities[1]: {
+                    CONF_SHUTOFF_ENABLED: True,
+                    CONF_ALERTS_ENABLED: True,
+                    CONF_CALIBRATED_FLOW: None,
+                    CONF_THRESHOLD_MULTIPLIER: 1.5,
+                },
+            },
+            CONF_RAMP_UP_POLLS: 0,
         },
     )
     entry.add_to_hass(hass)

@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Scaffold** - HACS-compliant integration skeleton with working pytest infrastructure (completed 2026-03-20)
 - [x] **Phase 2: Config Flow** - Setup UI discovers irrigation valves; user selects zones and configures per-zone options (completed 2026-03-20)
-- [ ] **Phase 3: Coordinator + Usage** - DataUpdateCoordinator polls Flume; per-zone daily usage sensors track and persist across restarts
+- [x] **Phase 3: Coordinator + Usage** - DataUpdateCoordinator polls Flume; per-zone daily usage sensors track and persist across restarts (completed 2026-03-24)
 - [ ] **Phase 4: Calibration** - Button-driven calibration workflow records per-zone baseline flow and stores it persistently
 - [ ] **Phase 5: Leak Detection** - Coordinator detects flow anomalies, auto-shuts off valves, and fires HA notifications
 - [ ] **Phase 6: Lovelace Card** - Custom dashboard card shows zone status, active flow rates, and daily usage
@@ -57,10 +57,10 @@ Plans:
   2. After restarting HA mid-day, each zone's daily usage sensor resumes from the pre-restart total (not reset to zero)
   3. If HA was offline at midnight, daily usage totals reset correctly on next startup based on stored date — they do not retain yesterday's values
   4. When the Flume sensor reports unavailable or unknown, the integration marks itself unavailable rather than crashing or firing false events
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 Plans:
 - [x] 03-01-PLAN.md — RED test stubs + IrrigationCoordinator with Store persistence, midnight reset, multi-zone attribution
-- [ ] 03-02-PLAN.md — Sensor entities (DailyUsageSensor + FlowRateSensor) and GREEN test pass
+- [x] 03-02-PLAN.md — Sensor entities (DailyUsageSensor + FlowRateSensor) and GREEN test pass
 
 ### Phase 4: Calibration
 **Goal**: Users can calibrate the expected flow rate for each monitored zone through a button in the HA UI, with the result stored persistently and surviving HA restarts
@@ -104,7 +104,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 |-------|----------------|--------|-----------|
 | 1. Scaffold | 1/1 | Complete    | 2026-03-20 |
 | 2. Config Flow | 2/2 | Complete    | 2026-03-20 |
-| 3. Coordinator + Usage | 1/2 | In Progress|  |
+| 3. Coordinator + Usage | 2/2 | Complete   | 2026-03-24 |
 | 4. Calibration | 0/? | Not started | - |
 | 5. Leak Detection | 0/? | Not started | - |
 | 6. Lovelace Card | 0/? | Not started | - |

@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed 03-coordinator-usage 03-01-PLAN.md
-last_updated: "2026-03-24T04:25:06.331Z"
+stopped_at: Completed 03-coordinator-usage 03-02-PLAN.md
+last_updated: "2026-03-24T04:29:49.681Z"
 last_activity: 2026-03-24
 progress:
   total_phases: 6
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 5
-  completed_plans: 4
+  completed_plans: 5
   percent: 0
 ---
 
@@ -56,6 +56,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 02-config-flow P02-01 | 12 | 2 tasks | 7 files |
 | Phase 02-config-flow P02-02 | 6 | 2 tasks | 2 files |
 | Phase 03-coordinator-usage P01 | 6 | 2 tasks | 6 files |
+| Phase 03-coordinator-usage P02 | 5 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -80,6 +81,9 @@ Recent decisions affecting current work:
 - [Phase 03-coordinator-usage]: Store flush on entry unload via async_save (not just async_delay_save) ensures persistence test and production reliability
 - [Phase 03-coordinator-usage]: Sensor entity_id set explicitly using zone_slug (dots->underscores) for predictable test entity IDs
 - [Phase 03-coordinator-usage]: type IrrigationConfigEntry = ConfigEntry[IrrigationCoordinator] for type-safe entry access across platforms
+- [Phase 03-coordinator-usage]: CoordinatorEntity double-inheritance: CoordinatorEntity[IrrigationCoordinator] + SensorEntity for auto-wired HA state updates without manual async_write_ha_state calls
+- [Phase 03-coordinator-usage]: Sensor entity_id set explicitly using zone_slug (dots->underscores) for predictable test assertions
+- [Phase 03-coordinator-usage]: No custom available property override on sensors — CoordinatorEntity.available delegates to coordinator.last_update_success automatically
 
 ### Pending Todos
 
@@ -93,6 +97,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-24T04:25:06.327Z
-Stopped at: Completed 03-coordinator-usage 03-01-PLAN.md
+Last session: 2026-03-24T04:29:49.678Z
+Stopped at: Completed 03-coordinator-usage 03-02-PLAN.md
 Resume file: None

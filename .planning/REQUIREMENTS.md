@@ -26,11 +26,11 @@
 
 ### Leak Detection (DETECT)
 
-- [ ] **DETECT-01**: Integration monitors flow rate whenever a valve is active and compares it against the zone's calibrated baseline × threshold multiplier
-- [ ] **DETECT-02**: Integration skips leak evaluation for a configurable number of polls after a valve turns on (ramp-up period to avoid false positives)
-- [ ] **DETECT-03**: When flow exceeds the threshold and auto-shutoff is enabled for that zone, integration turns off the valve via HA service call
-- [ ] **DETECT-04**: When a leak is detected and alerts are enabled for that zone, integration fires an HA notification identifying the zone and the measured vs. expected flow
-- [ ] **DETECT-05**: Integration handles Flume sensor being unavailable or returning unknown state without crashing or triggering false leak events
+- [x] **DETECT-01**: Integration monitors flow rate whenever a valve is active and compares it against the zone's calibrated baseline × threshold multiplier
+- [x] **DETECT-02**: Integration skips leak evaluation for a configurable number of polls after a valve turns on (ramp-up period to avoid false positives)
+- [x] **DETECT-03**: When flow exceeds the threshold and auto-shutoff is enabled for that zone, integration turns off the valve via HA service call
+- [x] **DETECT-04**: When a leak is detected and alerts are enabled for that zone, integration fires an HA notification identifying the zone and the measured vs. expected flow
+- [x] **DETECT-05**: Integration handles Flume sensor being unavailable or returning unknown state without crashing or triggering false leak events
 
 ### Usage Tracking (USAGE)
 
@@ -95,11 +95,11 @@ Updated during roadmap creation.
 | CALIB-04 | Phase 4 | Complete |
 | CALIB-05 | Phase 4 | Complete |
 | CALIB-06 | Phase 4 | Complete |
-| DETECT-01 | Phase 5 | Pending |
-| DETECT-02 | Phase 5 | Pending |
-| DETECT-03 | Phase 5 | Pending |
-| DETECT-04 | Phase 5 | Pending |
-| DETECT-05 | Phase 5 | Pending |
+| DETECT-01 | Phase 5 | Complete |
+| DETECT-02 | Phase 5 | Complete |
+| DETECT-03 | Phase 5 | Complete |
+| DETECT-04 | Phase 5 | Complete |
+| DETECT-05 | Phase 5 | Complete |
 | USAGE-01 | Phase 3 | Complete |
 | USAGE-02 | Phase 3 | Complete |
 | USAGE-03 | Phase 3 | Complete |

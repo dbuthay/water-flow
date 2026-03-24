@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Phase 5 context gathered
-last_updated: "2026-03-24T05:33:01.411Z"
+stopped_at: Completed 05-01-PLAN.md
+last_updated: "2026-03-24T05:57:53.621Z"
 last_activity: 2026-03-24
 progress:
   total_phases: 6
   completed_phases: 4
-  total_plans: 8
-  completed_plans: 8
+  total_plans: 10
+  completed_plans: 9
   percent: 0
 ---
 
@@ -60,6 +60,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 04-calibration P01 | 3 | 2 tasks | 5 files |
 | Phase 04-calibration P02 | 2 | 2 tasks | 2 files |
 | Phase 04-calibration P03 | 8 | 2 tasks | 2 files |
+| Phase 05 P01 | 3 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -93,6 +94,8 @@ Recent decisions affecting current work:
 - [Phase 04-calibration]: _write_calibrated_flow uses 3-level nested dict copy to safely mutate MappingProxyType ConfigEntry.options
 - [Phase 04-calibration]: Service call layer required for action-button notifications — async_create() has no actions param
 - [Phase 04-calibration]: One-shot event listener: unsub inside handler + entry.async_on_unload for leak-safe cleanup on entry unload
+- [Phase 05-01]: ramp_up_polls stored globally in ConfigEntry.options (not per-zone)
+- [Phase 05-01]: leak_statuses kept as coordinator dict (not ZoneData field) — Plan 02 wires sensors to it
 
 ### Pending Todos
 
@@ -106,6 +109,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-24T05:33:01.407Z
-Stopped at: Phase 5 context gathered
-Resume file: .planning/phases/05-leak-detection/05-CONTEXT.md
+Last session: 2026-03-24T05:57:53.617Z
+Stopped at: Completed 05-01-PLAN.md
+Resume file: None

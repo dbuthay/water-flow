@@ -1,10 +1,13 @@
 """DataUpdateCoordinator for the Irrigation Monitor integration."""
 from __future__ import annotations
 
+import asyncio
 import logging
+import statistics
 from dataclasses import dataclass
 from datetime import date, timedelta
 
+from homeassistant.components.persistent_notification import async_create, async_dismiss
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import STATE_UNAVAILABLE, STATE_UNKNOWN
 from homeassistant.core import HomeAssistant
@@ -13,16 +16,23 @@ from homeassistant.helpers.storage import Store
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .const import (
+    CONF_BACKGROUND_THRESHOLD,
     CONF_CALIBRATED_FLOW,
     CONF_FLUME_ENTITY_ID,
     CONF_MONITORED_ZONES,
     CONF_POLL_INTERVAL,
     CONF_THRESHOLD_MULTIPLIER,
     CONF_ZONES,
+    DEFAULT_BACKGROUND_THRESHOLD,
     DOMAIN,
+    SAMPLE_COUNT,
+    SAMPLE_INTERVAL,
     SAVE_DELAY,
+    STABILIZATION_POLL_INTERVAL,
+    STABILIZATION_TIMEOUT,
     STORAGE_KEY,
     STORAGE_VERSION,
+    VARIANCE_THRESHOLD,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -44,6 +54,8 @@ class IrrigationCoordinator(DataUpdateCoordinator[dict[str, ZoneData]]):
         self._entry = entry
         self._store = Store(hass, version=STORAGE_VERSION, key=STORAGE_KEY)
         self._daily_totals: dict[str, float] = {}
+        self._pending_calibrations: dict[str, float] = {}
+        self._calibrating: set[str] = set()
         super().__init__(
             hass,
             _LOGGER,
@@ -166,3 +178,7 @@ class IrrigationCoordinator(DataUpdateCoordinator[dict[str, ZoneData]]):
         self._daily_totals = {z: 0.0 for z in self._daily_totals}
         self._store.async_delay_save(self._data_to_save, 0)
         await self.async_refresh()
+
+    async def async_calibrate_zone(self, zone_id: str) -> None:
+        """Full calibration sequence for one zone. Implemented in Plan 04-02."""
+        raise NotImplementedError("Calibration sequence not yet implemented")

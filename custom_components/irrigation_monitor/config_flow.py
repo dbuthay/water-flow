@@ -267,6 +267,11 @@ class IrrigationMonitorOptionsFlowHandler(config_entries.OptionsFlow):
         zone_id = self._zone_iterator[0]
         existing_zone = self.config_entry.options.get(CONF_ZONES, {}).get(zone_id, {})
 
+        # Resolve friendly name for the title placeholder (falls back to entity_id)
+        registry = er.async_get(self.hass)
+        reg_entry = registry.async_get(zone_id)
+        zone_name = (reg_entry.name or reg_entry.original_name or zone_id) if reg_entry else zone_id
+
         return self.async_show_form(
             step_id="zones",
             data_schema=vol.Schema(
@@ -289,5 +294,5 @@ class IrrigationMonitorOptionsFlowHandler(config_entries.OptionsFlow):
                     ),
                 }
             ),
-            description_placeholders={"zone": zone_id},
+            description_placeholders={"zone_name": zone_name},
         )

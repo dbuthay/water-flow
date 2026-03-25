@@ -1,0 +1,26 @@
+{
+  "integration-components": {
+    "sensor": {
+      "daily_usage": {
+        "default": "mdi:water-pump"
+      },
+      "flow_rate": {
+        "default": "mdi:water"
+      },
+      "status": {
+        "default": "mdi:sprinkler-variant",
+        "idle": "mdi:sprinkler",
+        "running": "mdi:water",
+        "leak_detected": "mdi:pipe-leak"
+      }
+    },
+    "button": {
+      "calibrate": {
+        "default": "mdi:tune-vertical"
+      },
+      "acknowledge_leak": {
+        "default": "mdi:check-circle-outline"
+      }
+    }
+  }
+}

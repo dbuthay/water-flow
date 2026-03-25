@@ -31,6 +31,6 @@ async def test_static_path_registered(
     args = mock_register.call_args[0][0]
     assert len(args) == 1
     config = args[0]
-    assert config.url_path == "/local/irrigation-monitor-card.js"
+    assert config.url_path == "/irrigation_monitor/irrigation-monitor-card.js"
     assert "irrigation-monitor-card.js" in config.path
     assert config.cache_headers is True

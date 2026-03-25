@@ -18,18 +18,21 @@ type IrrigationConfigEntry = ConfigEntry[IrrigationCoordinator]
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     """Register Lovelace card JS as a static path at domain load time.
 
-    Runs once when the integration is loaded, before any config entries are
-    set up. This ensures the card file is served even if async_setup_entry
-    fails (e.g., Flume sensor unavailable during first load).
+    Uses /irrigation_monitor/ prefix to avoid conflicting with HA's
+    built-in /local/ handler which serves the config www directory.
     """
+    import logging
+    _LOGGER = logging.getLogger(__name__)
+
     www_path = str(Path(__file__).parent / "www" / "irrigation-monitor-card.js")
+    url = "/irrigation_monitor/irrigation-monitor-card.js"
     try:
         await hass.http.async_register_static_paths(
-            [StaticPathConfig("/local/irrigation-monitor-card.js", www_path, True)]
+            [StaticPathConfig(url, www_path, True)]
         )
-    except Exception:
-        # Already registered (e.g., HA reload) -- safe to ignore
-        pass
+        _LOGGER.info("Registered Lovelace card at %s -> %s", url, www_path)
+    except Exception as err:
+        _LOGGER.warning("Could not register Lovelace card static path: %s", err)
     return True
 
 

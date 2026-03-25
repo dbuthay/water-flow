@@ -9,11 +9,26 @@ from homeassistant.components.sensor import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import UnitOfVolume, UnitOfVolumeFlowRate
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import entity_registry as er
+from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import CONF_MONITORED_ZONES, DOMAIN
 from .coordinator import IrrigationCoordinator, ZoneData
+
+
+def _zone_device_info(hass: HomeAssistant, entry: ConfigEntry, zone_id: str) -> DeviceInfo:
+    """Build DeviceInfo for a monitored zone, naming it from the valve's friendly name."""
+    registry = er.async_get(hass)
+    reg_entry = registry.async_get(zone_id)
+    friendly_name = (reg_entry.name or reg_entry.original_name or zone_id) if reg_entry else zone_id
+    return DeviceInfo(
+        identifiers={(DOMAIN, f"{entry.entry_id}_{zone_id}")},
+        name=f"Zone: {friendly_name}",
+        manufacturer="Irrigation Monitor",
+        model="Zone Monitor",
+    )
 
 
 async def async_setup_entry(
@@ -26,9 +41,10 @@ async def async_setup_entry(
     monitored: list[str] = entry.data[CONF_MONITORED_ZONES]
     entities: list[SensorEntity] = []
     for zone_id in monitored:
-        entities.append(DailyUsageSensor(coordinator, entry, zone_id))
-        entities.append(FlowRateSensor(coordinator, entry, zone_id))
-        entities.append(ZoneStatusSensor(coordinator, entry, zone_id))
+        device_info = _zone_device_info(hass, entry, zone_id)
+        entities.append(DailyUsageSensor(coordinator, entry, zone_id, device_info))
+        entities.append(FlowRateSensor(coordinator, entry, zone_id, device_info))
+        entities.append(ZoneStatusSensor(coordinator, entry, zone_id, device_info))
     async_add_entities(entities)
 
 
@@ -45,15 +61,15 @@ class DailyUsageSensor(CoordinatorEntity[IrrigationCoordinator], SensorEntity):
         coordinator: IrrigationCoordinator,
         entry: ConfigEntry,
         zone_id: str,
+        device_info: DeviceInfo,
     ) -> None:
         super().__init__(coordinator)
         self._zone_id = zone_id
         self._attr_unique_id = f"{entry.entry_id}_{zone_id}_daily_usage"
-        # Entity ID: sensor.irrigation_monitor_{zone_id}_daily_usage
-        # zone_id contains dots (e.g. "switch.rachio_zone_1") — replace for entity_id safety
         zone_slug = zone_id.replace(".", "_")
         self._attr_name = f"{DOMAIN} {zone_slug} daily_usage"
         self.entity_id = f"sensor.{DOMAIN}_{zone_slug}_daily_usage"
+        self._attr_device_info = device_info
 
     @property
     def native_value(self) -> float | None:
@@ -77,6 +93,7 @@ class FlowRateSensor(CoordinatorEntity[IrrigationCoordinator], SensorEntity):
         coordinator: IrrigationCoordinator,
         entry: ConfigEntry,
         zone_id: str,
+        device_info: DeviceInfo,
     ) -> None:
         super().__init__(coordinator)
         self._zone_id = zone_id
@@ -84,6 +101,7 @@ class FlowRateSensor(CoordinatorEntity[IrrigationCoordinator], SensorEntity):
         zone_slug = zone_id.replace(".", "_")
         self._attr_name = f"{DOMAIN} {zone_slug} flow_rate"
         self.entity_id = f"sensor.{DOMAIN}_{zone_slug}_flow_rate"
+        self._attr_device_info = device_info
 
     @property
     def native_value(self) -> float | None:
@@ -108,6 +126,7 @@ class ZoneStatusSensor(CoordinatorEntity[IrrigationCoordinator], SensorEntity):
         coordinator: IrrigationCoordinator,
         entry: ConfigEntry,
         zone_id: str,
+        device_info: DeviceInfo,
     ) -> None:
         super().__init__(coordinator)
         self._zone_id = zone_id
@@ -115,8 +134,15 @@ class ZoneStatusSensor(CoordinatorEntity[IrrigationCoordinator], SensorEntity):
         zone_slug = zone_id.replace(".", "_")
         self._attr_name = f"{DOMAIN} {zone_slug} status"
         self.entity_id = f"sensor.{DOMAIN}_{zone_slug}_status"
+        self._attr_device_info = device_info
 
     @property
     def native_value(self) -> str:
         """Return zone status string."""
         return self.coordinator._leak_statuses.get(self._zone_id, "idle")
+
+    @property
+    def extra_state_attributes(self) -> dict:
+        """Expose the original valve entity_id so the Lovelace card can look up
+        its friendly name and entity picture without entity registry API calls."""
+        return {"zone_entity_id": self._zone_id}

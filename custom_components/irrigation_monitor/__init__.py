@@ -10,7 +10,7 @@ from homeassistant.core import HomeAssistant
 from .const import DOMAIN
 from .coordinator import IrrigationCoordinator
 
-PLATFORMS: list[str] = ["sensor", "button"]
+PLATFORMS: list[str] = ["sensor", "button", "switch", "number"]
 
 type IrrigationConfigEntry = ConfigEntry[IrrigationCoordinator]
 

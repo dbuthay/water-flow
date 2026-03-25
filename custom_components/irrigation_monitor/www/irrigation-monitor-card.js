@@ -40,28 +40,35 @@ class IrrigationMonitorCard extends HTMLElement {
         const prefix = statusId.replace(/_status$/, "");
         const flowState = hass.states[prefix + "_flow_rate"];
         const usageState = hass.states[prefix + "_daily_usage"];
+
+        // Use the original valve entity (exposed as zone_entity_id attribute)
+        // to get the real friendly name and entity picture.
+        const zoneEntityId = statusState.attributes.zone_entity_id;
+        const valveState = zoneEntityId ? hass.states[zoneEntityId] : null;
+        const name = valveState?.attributes?.friendly_name
+          || statusState.attributes.friendly_name
+          || statusId;
+        const picture = valveState?.attributes?.entity_picture || null;
+
         return {
-          name: this._extractZoneName(statusState),
+          name: this._cleanZoneName(name),
           status: statusState.state,
           flowRate: flowState ? parseFloat(flowState.state) || 0 : 0,
-          flowUnit:
-            flowState?.attributes?.unit_of_measurement ?? "gal/min",
-          dailyUsage: usageState
-            ? parseFloat(usageState.state) || 0
-            : 0,
-          dailyUnit:
-            usageState?.attributes?.unit_of_measurement ?? "gal",
+          flowUnit: flowState?.attributes?.unit_of_measurement ?? "gal/min",
+          dailyUsage: usageState ? parseFloat(usageState.state) || 0 : 0,
+          dailyUnit: usageState?.attributes?.unit_of_measurement ?? "gal",
+          picture: picture,
         };
       });
   }
 
-  _extractZoneName(statusState) {
-    const friendly = statusState.attributes.friendly_name;
-    if (!friendly) return "Zone";
-    // Strip the "irrigation_monitor_" prefix and "_status" suffix from friendly name
-    // to get just the zone identifier, then humanize it
-    return friendly
-      .replace(/^irrigation_monitor\s*/i, "")
+  _cleanZoneName(name) {
+    if (!name) return "Zone";
+    // Strip leading domain word (switch, valve, binary_sensor) if present,
+    // then strip trailing "status" if present, then humanize underscores.
+    // Mirrors the entity registry friendly name resolution in the config wizard.
+    return name
+      .replace(/^(switch|valve|binary_sensor|sensor)\s+/i, "")
       .replace(/\s*status$/i, "")
       .replace(/_/g, " ")
       .trim() || "Zone";
@@ -102,12 +109,22 @@ class IrrigationMonitorCard extends HTMLElement {
         ? `<div class="flow">${zone.flowRate.toFixed(1)} ${this._escapeHtml(zone.flowUnit)}</div>`
         : '<div class="flow idle-flow">0 gal/min</div>';
 
+    // When an entity picture is available, use it as background with a
+    // state-coloured overlay. Fall back to solid colour tint (no background-image).
+    const bgStyle = zone.picture
+      ? `style="background-image: url('${this._escapeHtml(zone.picture)}');"`
+      : "";
+    const hasImage = zone.picture ? " has-image" : "";
+
     return `
-      <div class="tile ${statusClass}">
-        <div class="icon">${icon}</div>
-        <div class="name">${name}</div>
-        ${flowDisplay}
-        <div class="usage">${zone.dailyUsage.toFixed(1)} ${this._escapeHtml(zone.dailyUnit)} today</div>
+      <div class="tile ${statusClass}${hasImage}" ${bgStyle}>
+        <div class="overlay"></div>
+        <div class="content">
+          <div class="icon">${icon}</div>
+          <div class="name">${name}</div>
+          ${flowDisplay}
+          <div class="usage">${zone.dailyUsage.toFixed(1)} ${this._escapeHtml(zone.dailyUnit)} today</div>
+        </div>
       </div>
     `;
   }
@@ -128,6 +145,9 @@ class IrrigationMonitorCard extends HTMLElement {
   _styles() {
     return `
       :host {
+        --overlay-idle: rgba(80, 80, 80, 0.65);
+        --overlay-running: rgba(33, 150, 243, 0.55);
+        --overlay-leak: rgba(244, 67, 54, 0.65);
         --tile-idle-bg: rgba(128, 128, 128, 0.15);
         --tile-running-bg: rgba(33, 150, 243, 0.15);
         --tile-leak-bg: rgba(244, 67, 54, 0.15);
@@ -140,39 +160,57 @@ class IrrigationMonitorCard extends HTMLElement {
         padding: 0 16px 16px;
       }
 
+      /* ── Tile base ── */
       .tile {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 0;
+        border-radius: 12px;
+        overflow: hidden;
+        text-align: center;
+        background-size: cover;
+        background-position: center;
+      }
+
+      /* ── Colour overlay (sits between background image and content) ── */
+      .tile .overlay {
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+      }
+
+      /* Solid tint when no image */
+      .tile.idle:not(.has-image)     { background: var(--tile-idle-bg); }
+      .tile.running:not(.has-image)  { background: var(--tile-running-bg); }
+      .tile.leak_detected:not(.has-image) { background: var(--tile-leak-bg); }
+
+      /* Colour overlay when image is present */
+      .tile.has-image.idle     .overlay { background: var(--overlay-idle); }
+      .tile.has-image.running  .overlay { background: var(--overlay-running); }
+      .tile.has-image.leak_detected .overlay { background: var(--overlay-leak); }
+
+      /* ── Content layer (above overlay) ── */
+      .tile .content {
+        position: relative;
+        z-index: 1;
         display: flex;
         flex-direction: column;
         align-items: center;
         padding: 16px 12px;
-        border-radius: 12px;
-        text-align: center;
+        width: 100%;
       }
 
-      .tile.idle {
-        background: var(--tile-idle-bg);
-      }
-      .tile.idle ha-icon {
-        color: var(--secondary-text-color, #888);
-      }
+      /* Icon colours */
+      .tile.idle ha-icon          { color: var(--secondary-text-color, #888); }
+      .tile.running ha-icon       { color: var(--info-color, #2196F3); }
+      .tile.leak_detected ha-icon { color: var(--error-color, #f44336); }
 
-      .tile.running {
-        background: var(--tile-running-bg);
-      }
-      .tile.running ha-icon {
-        color: var(--info-color, #2196F3);
-      }
+      /* When image present, icons always white to show on coloured overlay */
+      .tile.has-image ha-icon { color: #fff; }
 
-      .tile.leak_detected {
-        background: var(--tile-leak-bg);
-      }
-      .tile.leak_detected ha-icon {
-        color: var(--error-color, #f44336);
-      }
-
-      .tile .icon {
-        margin-bottom: 8px;
-      }
+      .tile .icon { margin-bottom: 8px; }
       .tile .icon ha-icon {
         --mdc-icon-size: 36px;
         width: 36px;
@@ -186,20 +224,21 @@ class IrrigationMonitorCard extends HTMLElement {
         margin-bottom: 4px;
         word-break: break-word;
       }
+      .tile.has-image .name { color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
 
       .tile .flow {
         font-size: 0.85rem;
         color: var(--primary-text-color);
         margin-bottom: 2px;
       }
-      .tile .flow.idle-flow {
-        color: var(--secondary-text-color, #888);
-      }
+      .tile .flow.idle-flow { color: var(--secondary-text-color, #888); }
+      .tile.has-image .flow { color: rgba(255,255,255,0.9); }
 
       .tile .usage {
         font-size: 0.8rem;
         color: var(--secondary-text-color, #888);
       }
+      .tile.has-image .usage { color: rgba(255,255,255,0.75); }
 
       .empty {
         padding: 16px;

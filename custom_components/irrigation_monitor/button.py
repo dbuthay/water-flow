@@ -9,6 +9,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import CONF_MONITORED_ZONES, DOMAIN
 from .coordinator import IrrigationCoordinator
+from .sensor import _zone_device_info
 
 
 async def async_setup_entry(
@@ -21,8 +22,9 @@ async def async_setup_entry(
     monitored: list[str] = entry.data[CONF_MONITORED_ZONES]
     entities = []
     for zone_id in monitored:
-        entities.append(CalibrateButtonEntity(coordinator, entry, zone_id))
-        entities.append(AcknowledgeLeakButtonEntity(coordinator, entry, zone_id))
+        device_info = _zone_device_info(hass, entry, zone_id)
+        entities.append(CalibrateButtonEntity(coordinator, entry, zone_id, device_info))
+        entities.append(AcknowledgeLeakButtonEntity(coordinator, entry, zone_id, device_info))
     async_add_entities(entities)
 
 
@@ -37,6 +39,7 @@ class CalibrateButtonEntity(CoordinatorEntity[IrrigationCoordinator], ButtonEnti
         coordinator: IrrigationCoordinator,
         entry: ConfigEntry,
         zone_id: str,
+        device_info,
     ) -> None:
         super().__init__(coordinator)
         self._zone_id = zone_id
@@ -45,6 +48,7 @@ class CalibrateButtonEntity(CoordinatorEntity[IrrigationCoordinator], ButtonEnti
         self._attr_unique_id = f"{entry.entry_id}_{zone_id}_calibrate"
         self._attr_name = f"{DOMAIN} {zone_slug} calibrate"
         self.entity_id = f"button.{DOMAIN}_{zone_slug}_calibrate"
+        self._attr_device_info = device_info
 
     async def async_press(self) -> None:
         """Fire calibration as a background task -- never block async_press."""
@@ -66,6 +70,7 @@ class AcknowledgeLeakButtonEntity(CoordinatorEntity[IrrigationCoordinator], Butt
         coordinator: IrrigationCoordinator,
         entry: ConfigEntry,
         zone_id: str,
+        device_info,
     ) -> None:
         super().__init__(coordinator)
         self._zone_id = zone_id
@@ -73,6 +78,7 @@ class AcknowledgeLeakButtonEntity(CoordinatorEntity[IrrigationCoordinator], Butt
         self._attr_unique_id = f"{entry.entry_id}_{zone_id}_acknowledge_leak"
         self._attr_name = f"{DOMAIN} {zone_slug} acknowledge_leak"
         self.entity_id = f"button.{DOMAIN}_{zone_slug}_acknowledge_leak"
+        self._attr_device_info = device_info
 
     async def async_press(self) -> None:
         """Clear leak_detected status and dedup flag for this zone."""

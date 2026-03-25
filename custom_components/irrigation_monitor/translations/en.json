@@ -24,20 +24,11 @@
     "step": {
       "init": {
         "title": "Irrigation Monitor Settings",
-        "description": "Update Flume sensor, monitored valves, and poll interval.",
+        "description": "Update Flume sensor, monitored valves, and poll interval. Per-zone settings (shutoff, alerts, threshold) are configured on each zone's device page.",
         "data": {
           "flume_entity_id": "Flume sensor",
           "monitored_zone_entity_ids": "Valves to monitor",
           "poll_interval": "Poll interval (seconds)"
-        }
-      },
-      "zones": {
-        "title": "Zone Settings: {zone_name}",
-        "description": "Configure per-zone options.",
-        "data": {
-          "shutoff_enabled": "Auto-shutoff enabled",
-          "alerts_enabled": "Anomaly alerts enabled",
-          "threshold_multiplier": "Leak detection threshold multiplier"
         }
       }
     }

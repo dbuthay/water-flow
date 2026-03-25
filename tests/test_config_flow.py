@@ -187,53 +187,54 @@ async def test_options_flow_init_shows_form(
 
 async def test_options_flow_merge_preserves_zones(
     hass: HomeAssistant,
-    mock_config_entry: MockConfigEntry,
     mock_flume_entity: str,
     mock_valve_entities: list[str],
 ) -> None:
-    """Test that running options flow preserves existing calibration data (CRITICAL merge test)."""
-    # Pre-seeded: zone_1 has calibrated_flow=3.5 (from fixture)
-    result = await hass.config_entries.options.async_init(mock_config_entry.entry_id)
+    """Options flow preserves existing calibrated_flow — CRITICAL merge test (SETUP-04)."""
+    # Pre-seed entry with calibrated_flow=3.5 on zone_1
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        data={
+            CONF_FLUME_ENTITY_ID: mock_flume_entity,
+            CONF_MONITORED_ZONES: mock_valve_entities[:2],
+            CONF_POLL_INTERVAL: DEFAULT_POLL_INTERVAL,
+        },
+        options={
+            CONF_ZONES: {
+                mock_valve_entities[0]: {
+                    CONF_SHUTOFF_ENABLED: True,
+                    CONF_ALERTS_ENABLED: True,
+                    CONF_CALIBRATED_FLOW: 3.5,
+                    CONF_THRESHOLD_MULTIPLIER: DEFAULT_THRESHOLD_MULTIPLIER,
+                },
+                mock_valve_entities[1]: {
+                    CONF_SHUTOFF_ENABLED: True,
+                    CONF_ALERTS_ENABLED: True,
+                    CONF_CALIBRATED_FLOW: None,
+                    CONF_THRESHOLD_MULTIPLIER: DEFAULT_THRESHOLD_MULTIPLIER,
+                },
+            }
+        },
+    )
+    entry.add_to_hass(hass)
+
+    # Options flow is now single-step: init → create_entry
+    result = await hass.config_entries.options.async_init(entry.entry_id)
     assert result["type"] == FlowResultType.FORM
     assert result["step_id"] == "init"
 
-    # Submit init step with same valves (no change)
     result = await hass.config_entries.options.async_configure(
         result["flow_id"],
         user_input={
-            CONF_FLUME_ENTITY_ID: "sensor.flume_current_interval",
-            CONF_MONITORED_ZONES: ["switch.rachio_zone_1", "switch.rachio_zone_2"],
+            CONF_FLUME_ENTITY_ID: mock_flume_entity,
+            CONF_MONITORED_ZONES: mock_valve_entities[:2],
             CONF_POLL_INTERVAL: DEFAULT_POLL_INTERVAL,
-        },
-    )
-    assert result["type"] == FlowResultType.FORM
-    assert result["step_id"] == "zones"
-
-    # Configure zone_1 (keeping defaults)
-    result = await hass.config_entries.options.async_configure(
-        result["flow_id"],
-        user_input={
-            CONF_SHUTOFF_ENABLED: True,
-            CONF_ALERTS_ENABLED: True,
-            CONF_THRESHOLD_MULTIPLIER: DEFAULT_THRESHOLD_MULTIPLIER,
-        },
-    )
-    assert result["type"] == FlowResultType.FORM
-    assert result["step_id"] == "zones"
-
-    # Configure zone_2 (keeping defaults)
-    result = await hass.config_entries.options.async_configure(
-        result["flow_id"],
-        user_input={
-            CONF_SHUTOFF_ENABLED: False,
-            CONF_ALERTS_ENABLED: True,
-            CONF_THRESHOLD_MULTIPLIER: 2.0,
         },
     )
     assert result["type"] == FlowResultType.CREATE_ENTRY
 
-    # CRITICAL: calibrated_flow=3.5 must be preserved from the original options
-    assert mock_config_entry.options[CONF_ZONES]["switch.rachio_zone_1"][CONF_CALIBRATED_FLOW] == 3.5
+    # CRITICAL: calibrated_flow=3.5 must survive the options flow round-trip
+    assert entry.options[CONF_ZONES]["switch.rachio_zone_1"][CONF_CALIBRATED_FLOW] == 3.5
 
 
 async def test_options_flow_add_new_valve_gets_defaults(
@@ -242,51 +243,21 @@ async def test_options_flow_add_new_valve_gets_defaults(
     mock_flume_entity: str,
     mock_valve_entities: list[str],
 ) -> None:
-    """Test that a newly added valve gets default zone settings (SETUP-04)."""
+    """A newly added valve gets default zone settings immediately (SETUP-04)."""
     result = await hass.config_entries.options.async_init(mock_config_entry.entry_id)
     assert result["type"] == FlowResultType.FORM
 
-    # Add valve.os_zone_3 (new valve) alongside the existing two
+    # Add valve.os_zone_3 (new) alongside the existing two — single step
     result = await hass.config_entries.options.async_configure(
         result["flow_id"],
         user_input={
-            CONF_FLUME_ENTITY_ID: "sensor.flume_current_interval",
+            CONF_FLUME_ENTITY_ID: mock_flume_entity,
             CONF_MONITORED_ZONES: [
                 "switch.rachio_zone_1",
                 "switch.rachio_zone_2",
                 "valve.os_zone_3",
             ],
             CONF_POLL_INTERVAL: DEFAULT_POLL_INTERVAL,
-        },
-    )
-    assert result["type"] == FlowResultType.FORM
-    assert result["step_id"] == "zones"
-
-    # Configure zone_1
-    result = await hass.config_entries.options.async_configure(
-        result["flow_id"],
-        user_input={
-            CONF_SHUTOFF_ENABLED: True,
-            CONF_ALERTS_ENABLED: True,
-            CONF_THRESHOLD_MULTIPLIER: DEFAULT_THRESHOLD_MULTIPLIER,
-        },
-    )
-    # Configure zone_2
-    result = await hass.config_entries.options.async_configure(
-        result["flow_id"],
-        user_input={
-            CONF_SHUTOFF_ENABLED: False,
-            CONF_ALERTS_ENABLED: True,
-            CONF_THRESHOLD_MULTIPLIER: 2.0,
-        },
-    )
-    # Configure valve.os_zone_3 (new)
-    result = await hass.config_entries.options.async_configure(
-        result["flow_id"],
-        user_input={
-            CONF_SHUTOFF_ENABLED: True,
-            CONF_ALERTS_ENABLED: True,
-            CONF_THRESHOLD_MULTIPLIER: DEFAULT_THRESHOLD_MULTIPLIER,
         },
     )
     assert result["type"] == FlowResultType.CREATE_ENTRY
@@ -304,146 +275,70 @@ async def test_options_flow_remove_valve_clears_data(
     mock_flume_entity: str,
     mock_valve_entities: list[str],
 ) -> None:
-    """Test that removing a valve from the monitored list clears its zone data (SETUP-04)."""
+    """Removing a valve from the monitored list clears its zone data (SETUP-04)."""
     result = await hass.config_entries.options.async_init(mock_config_entry.entry_id)
     assert result["type"] == FlowResultType.FORM
 
-    # Select only zone_1 (removing zone_2)
+    # Select only zone_1 (drop zone_2) — single step
     result = await hass.config_entries.options.async_configure(
         result["flow_id"],
         user_input={
-            CONF_FLUME_ENTITY_ID: "sensor.flume_current_interval",
+            CONF_FLUME_ENTITY_ID: mock_flume_entity,
             CONF_MONITORED_ZONES: ["switch.rachio_zone_1"],
             CONF_POLL_INTERVAL: DEFAULT_POLL_INTERVAL,
         },
     )
-    assert result["type"] == FlowResultType.FORM
-    assert result["step_id"] == "zones"
-
-    # Configure zone_1
-    result = await hass.config_entries.options.async_configure(
-        result["flow_id"],
-        user_input={
-            CONF_SHUTOFF_ENABLED: True,
-            CONF_ALERTS_ENABLED: True,
-            CONF_THRESHOLD_MULTIPLIER: DEFAULT_THRESHOLD_MULTIPLIER,
-        },
-    )
     assert result["type"] == FlowResultType.CREATE_ENTRY
-
-    # zone_2 must be gone
     assert "switch.rachio_zone_2" not in mock_config_entry.options[CONF_ZONES]
 
 
 async def test_options_per_zone_shutoff(
     hass: HomeAssistant,
     mock_config_entry: MockConfigEntry,
-    mock_flume_entity: str,
-    mock_valve_entities: list[str],
 ) -> None:
-    """Test that shutoff_enabled can be changed per zone (SETUP-05)."""
-    result = await hass.config_entries.options.async_init(mock_config_entry.entry_id)
-    result = await hass.config_entries.options.async_configure(
-        result["flow_id"],
-        user_input={
-            CONF_FLUME_ENTITY_ID: "sensor.flume_current_interval",
-            CONF_MONITORED_ZONES: ["switch.rachio_zone_1", "switch.rachio_zone_2"],
-            CONF_POLL_INTERVAL: DEFAULT_POLL_INTERVAL,
-        },
-    )
-    # Set zone_1 shutoff to False
-    result = await hass.config_entries.options.async_configure(
-        result["flow_id"],
-        user_input={
-            CONF_SHUTOFF_ENABLED: False,
-            CONF_ALERTS_ENABLED: True,
-            CONF_THRESHOLD_MULTIPLIER: DEFAULT_THRESHOLD_MULTIPLIER,
-        },
-    )
-    # Configure zone_2
-    result = await hass.config_entries.options.async_configure(
-        result["flow_id"],
-        user_input={
-            CONF_SHUTOFF_ENABLED: False,
-            CONF_ALERTS_ENABLED: True,
-            CONF_THRESHOLD_MULTIPLIER: 2.0,
-        },
-    )
-    assert result["type"] == FlowResultType.CREATE_ENTRY
-    assert mock_config_entry.options[CONF_ZONES]["switch.rachio_zone_1"][CONF_SHUTOFF_ENABLED] is False
+    """ShutoffEnabledSwitch reads default from options and writes back on toggle (SETUP-05)."""
+    from custom_components.irrigation_monitor.switch import ShutoffEnabledSwitch
+
+    zone_id = "switch.rachio_zone_1"
+    switch = ShutoffEnabledSwitch(mock_config_entry, zone_id, {})
+    switch.hass = hass
+
+    assert switch.is_on is True  # default from fixture
+    await switch.async_turn_off()
+    assert mock_config_entry.options[CONF_ZONES][zone_id][CONF_SHUTOFF_ENABLED] is False
+    await switch.async_turn_on()
+    assert mock_config_entry.options[CONF_ZONES][zone_id][CONF_SHUTOFF_ENABLED] is True
 
 
 async def test_options_per_zone_alerts(
     hass: HomeAssistant,
     mock_config_entry: MockConfigEntry,
-    mock_flume_entity: str,
-    mock_valve_entities: list[str],
 ) -> None:
-    """Test that alerts_enabled can be changed per zone (SETUP-06)."""
-    result = await hass.config_entries.options.async_init(mock_config_entry.entry_id)
-    result = await hass.config_entries.options.async_configure(
-        result["flow_id"],
-        user_input={
-            CONF_FLUME_ENTITY_ID: "sensor.flume_current_interval",
-            CONF_MONITORED_ZONES: ["switch.rachio_zone_1", "switch.rachio_zone_2"],
-            CONF_POLL_INTERVAL: DEFAULT_POLL_INTERVAL,
-        },
-    )
-    # Set zone_1 alerts to False
-    result = await hass.config_entries.options.async_configure(
-        result["flow_id"],
-        user_input={
-            CONF_SHUTOFF_ENABLED: True,
-            CONF_ALERTS_ENABLED: False,
-            CONF_THRESHOLD_MULTIPLIER: DEFAULT_THRESHOLD_MULTIPLIER,
-        },
-    )
-    # Configure zone_2
-    result = await hass.config_entries.options.async_configure(
-        result["flow_id"],
-        user_input={
-            CONF_SHUTOFF_ENABLED: False,
-            CONF_ALERTS_ENABLED: True,
-            CONF_THRESHOLD_MULTIPLIER: 2.0,
-        },
-    )
-    assert result["type"] == FlowResultType.CREATE_ENTRY
-    assert mock_config_entry.options[CONF_ZONES]["switch.rachio_zone_1"][CONF_ALERTS_ENABLED] is False
+    """AlertsEnabledSwitch reads default from options and writes back on toggle (SETUP-06)."""
+    from custom_components.irrigation_monitor.switch import AlertsEnabledSwitch
+
+    zone_id = "switch.rachio_zone_1"
+    switch = AlertsEnabledSwitch(mock_config_entry, zone_id, {})
+    switch.hass = hass
+
+    assert switch.is_on is True  # default from fixture
+    await switch.async_turn_off()
+    assert mock_config_entry.options[CONF_ZONES][zone_id][CONF_ALERTS_ENABLED] is False
+    await switch.async_turn_on()
+    assert mock_config_entry.options[CONF_ZONES][zone_id][CONF_ALERTS_ENABLED] is True
 
 
 async def test_options_per_zone_threshold(
     hass: HomeAssistant,
     mock_config_entry: MockConfigEntry,
-    mock_flume_entity: str,
-    mock_valve_entities: list[str],
 ) -> None:
-    """Test that threshold_multiplier can be changed per zone (SETUP-07)."""
-    result = await hass.config_entries.options.async_init(mock_config_entry.entry_id)
-    result = await hass.config_entries.options.async_configure(
-        result["flow_id"],
-        user_input={
-            CONF_FLUME_ENTITY_ID: "sensor.flume_current_interval",
-            CONF_MONITORED_ZONES: ["switch.rachio_zone_1", "switch.rachio_zone_2"],
-            CONF_POLL_INTERVAL: DEFAULT_POLL_INTERVAL,
-        },
-    )
-    # Set zone_1 threshold to 2.5
-    result = await hass.config_entries.options.async_configure(
-        result["flow_id"],
-        user_input={
-            CONF_SHUTOFF_ENABLED: True,
-            CONF_ALERTS_ENABLED: True,
-            CONF_THRESHOLD_MULTIPLIER: 2.5,
-        },
-    )
-    # Configure zone_2
-    result = await hass.config_entries.options.async_configure(
-        result["flow_id"],
-        user_input={
-            CONF_SHUTOFF_ENABLED: False,
-            CONF_ALERTS_ENABLED: True,
-            CONF_THRESHOLD_MULTIPLIER: 2.0,
-        },
-    )
-    assert result["type"] == FlowResultType.CREATE_ENTRY
-    assert mock_config_entry.options[CONF_ZONES]["switch.rachio_zone_1"][CONF_THRESHOLD_MULTIPLIER] == 2.5
+    """ThresholdMultiplierNumber reads from options and writes back on set (SETUP-07)."""
+    from custom_components.irrigation_monitor.number import ThresholdMultiplierNumber
+
+    zone_id = "switch.rachio_zone_1"
+    number = ThresholdMultiplierNumber(mock_config_entry, zone_id, {})
+    number.hass = hass
+
+    assert number.native_value == DEFAULT_THRESHOLD_MULTIPLIER  # 1.5 from fixture
+    await number.async_set_native_value(1.8)
+    assert mock_config_entry.options[CONF_ZONES][zone_id][CONF_THRESHOLD_MULTIPLIER] == 1.8

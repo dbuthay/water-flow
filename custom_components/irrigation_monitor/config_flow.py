@@ -7,7 +7,6 @@ from homeassistant import config_entries
 from homeassistant.core import callback
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.selector import (
-    BooleanSelector,
     EntitySelector,
     EntitySelectorConfig,
     EntityFilterSelectorConfig,
@@ -132,27 +131,48 @@ class IrrigationMonitorConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
 
 class IrrigationMonitorOptionsFlowHandler(config_entries.OptionsFlow):
-    """Handle options flow for Irrigation Monitor."""
+    """Handle options flow for Irrigation Monitor.
 
-    def __init__(self) -> None:
-        """Initialize the options flow."""
-        self._new_zone_ids: list[str] = []
-        self._zone_iterator: list[str] = []
-        self._zone_settings: dict[str, dict[str, Any]] = {}
-        self._new_flume_entity_id: str = ""
-        self._new_poll_interval: int = DEFAULT_POLL_INTERVAL
+    Only manages Flume sensor, monitored valve list, and poll interval.
+    Per-zone settings (shutoff, alerts, threshold) are configured directly
+    on each zone's device page via switch and number entities.
+    """
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
     ) -> config_entries.ConfigFlowResult:
-        """Step 1: Change Flume sensor, valve list, and poll interval."""
+        """Update Flume sensor, valve list, and poll interval."""
         if user_input is not None:
-            self._new_flume_entity_id = user_input[CONF_FLUME_ENTITY_ID]
-            self._new_poll_interval = user_input[CONF_POLL_INTERVAL]
-            self._new_zone_ids = user_input[CONF_MONITORED_ZONES]
-            self._zone_settings = {}
-            self._zone_iterator = list(self._new_zone_ids)
-            return await self.async_step_zones()
+            new_zones = user_input[CONF_MONITORED_ZONES]
+
+            # CRITICAL merge: preserve all existing zone data (calibrated_flow,
+            # shutoff/alerts toggles, threshold) for zones that remain monitored.
+            # New zones get defaults. Removed zones are dropped (clearing their data).
+            existing = dict(self.config_entry.options)
+            old_zones = existing.get(CONF_ZONES, {})
+            updated_zones: dict[str, dict[str, Any]] = {}
+            for zone_id in new_zones:
+                if zone_id in old_zones:
+                    updated_zones[zone_id] = old_zones[zone_id]
+                else:
+                    updated_zones[zone_id] = {
+                        CONF_SHUTOFF_ENABLED: DEFAULT_SHUTOFF_ENABLED,
+                        CONF_ALERTS_ENABLED: DEFAULT_ALERTS_ENABLED,
+                        CONF_CALIBRATED_FLOW: None,
+                        CONF_THRESHOLD_MULTIPLIER: DEFAULT_THRESHOLD_MULTIPLIER,
+                    }
+            existing[CONF_ZONES] = updated_zones
+
+            # Update ConfigEntry.data (flume entity, valve list, poll interval)
+            self.hass.config_entries.async_update_entry(
+                self.config_entry,
+                data={
+                    CONF_FLUME_ENTITY_ID: user_input[CONF_FLUME_ENTITY_ID],
+                    CONF_MONITORED_ZONES: new_zones,
+                    CONF_POLL_INTERVAL: user_input[CONF_POLL_INTERVAL],
+                },
+            )
+            return self.async_create_entry(data=existing)
 
         valve_candidates = self._discover_valve_entities()
         valve_options = [
@@ -201,98 +221,3 @@ class IrrigationMonitorOptionsFlowHandler(config_entries.OptionsFlow):
             name = entry.name or entry.original_name or entry.entity_id
             candidates.append((entry.entity_id, name))
         return sorted(candidates, key=lambda x: x[1])
-
-    async def async_step_zones(
-        self, user_input: dict[str, Any] | None = None
-    ) -> config_entries.ConfigFlowResult:
-        """Step 2: Per-zone settings — iterates one zone at a time."""
-        if user_input is not None and self._zone_iterator:
-            # Store settings for the zone we just configured
-            current_zone = self._zone_iterator[0]
-            self._zone_settings[current_zone] = {
-                CONF_SHUTOFF_ENABLED: user_input[CONF_SHUTOFF_ENABLED],
-                CONF_ALERTS_ENABLED: user_input[CONF_ALERTS_ENABLED],
-                CONF_THRESHOLD_MULTIPLIER: user_input[CONF_THRESHOLD_MULTIPLIER],
-            }
-            self._zone_iterator.pop(0)
-
-        if not self._zone_iterator:
-            # All zones configured — apply CRITICAL merge pattern
-            existing = dict(self.config_entry.options)
-            old_zones = existing.get(CONF_ZONES, {})
-            updated_zones: dict[str, dict[str, Any]] = {}
-
-            for zone_id in self._new_zone_ids:
-                if zone_id in self._zone_settings:
-                    # User provided new settings for this zone — merge with existing
-                    if zone_id in old_zones:
-                        base = dict(old_zones[zone_id])
-                    else:
-                        # New zone: start with defaults (ensures calibrated_flow=None)
-                        base = {
-                            CONF_SHUTOFF_ENABLED: DEFAULT_SHUTOFF_ENABLED,
-                            CONF_ALERTS_ENABLED: DEFAULT_ALERTS_ENABLED,
-                            CONF_CALIBRATED_FLOW: None,
-                            CONF_THRESHOLD_MULTIPLIER: DEFAULT_THRESHOLD_MULTIPLIER,
-                        }
-                    base.update(self._zone_settings[zone_id])
-                    updated_zones[zone_id] = base
-                elif zone_id in old_zones:
-                    # Existing zone not re-configured — preserve entirely (incl. calibrated_flow)
-                    updated_zones[zone_id] = old_zones[zone_id]
-                else:
-                    # Brand new zone — apply defaults
-                    updated_zones[zone_id] = {
-                        CONF_SHUTOFF_ENABLED: DEFAULT_SHUTOFF_ENABLED,
-                        CONF_ALERTS_ENABLED: DEFAULT_ALERTS_ENABLED,
-                        CONF_CALIBRATED_FLOW: None,
-                        CONF_THRESHOLD_MULTIPLIER: DEFAULT_THRESHOLD_MULTIPLIER,
-                    }
-
-            existing[CONF_ZONES] = updated_zones
-
-            # Update ConfigEntry.data with new flume/valves/poll settings
-            self.hass.config_entries.async_update_entry(
-                self.config_entry,
-                data={
-                    CONF_FLUME_ENTITY_ID: self._new_flume_entity_id,
-                    CONF_MONITORED_ZONES: self._new_zone_ids,
-                    CONF_POLL_INTERVAL: self._new_poll_interval,
-                },
-            )
-
-            return self.async_create_entry(data=existing)
-
-        # Show form for next zone in iterator
-        zone_id = self._zone_iterator[0]
-        existing_zone = self.config_entry.options.get(CONF_ZONES, {}).get(zone_id, {})
-
-        # Resolve friendly name for the title placeholder (falls back to entity_id)
-        registry = er.async_get(self.hass)
-        reg_entry = registry.async_get(zone_id)
-        zone_name = (reg_entry.name or reg_entry.original_name or zone_id) if reg_entry else zone_id
-
-        return self.async_show_form(
-            step_id="zones",
-            data_schema=vol.Schema(
-                {
-                    vol.Required(
-                        CONF_SHUTOFF_ENABLED,
-                        default=existing_zone.get(CONF_SHUTOFF_ENABLED, DEFAULT_SHUTOFF_ENABLED),
-                    ): BooleanSelector(),
-                    vol.Required(
-                        CONF_ALERTS_ENABLED,
-                        default=existing_zone.get(CONF_ALERTS_ENABLED, DEFAULT_ALERTS_ENABLED),
-                    ): BooleanSelector(),
-                    vol.Required(
-                        CONF_THRESHOLD_MULTIPLIER,
-                        default=existing_zone.get(
-                            CONF_THRESHOLD_MULTIPLIER, DEFAULT_THRESHOLD_MULTIPLIER
-                        ),
-                    ): NumberSelector(
-                        NumberSelectorConfig(min=1.0, max=5.0, step=0.1)
-                    ),
-                }
-            ),
-            description_placeholders={"zone_name": zone_name},
-        )
